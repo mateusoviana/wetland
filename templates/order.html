@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h2>Detalhes do Pedido #{{ order.id }}</h2>
+    
+    <div class="order-details">
+        <p><strong>Status:</strong> <span class="status-{{ order.status.lower() }}">{{ order.status }}</span></p>
+        <p><strong>Total (com frete):</strong> R$ {{ "%.2f"|format(order.total_price) }}</p>
+        
+        <h3>Itens do Pedido:</h3>
+        <ul>
+            {% for product_name in order.products %}
+            <li>{{ product_name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% if order.status != 'Delivered' %}
+    <form action="{{ url_for('next_status', order_id=order.id) }}" method="post" class="status-form">
+        <button type="submit" class="btn">Avançar para o Próximo Status</button>
+    </form>
+    {% else %}
+    <p class="success-message">🎉 Pedido entregue com sucesso!</p>
+    {% endif %}
+
+    <a href="{{ url_for('index') }}" class="back-link">← Voltar para a loja</a>
+{% endblock %}

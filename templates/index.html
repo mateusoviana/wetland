@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h2>Nossos Produtos</h2>
+    <form action="/" method="post">
+        <div class="product-list">
+            {% for product in products %}
+            <div class="product-item">
+                <input type="checkbox" name="product_ids" value="{{ product.id }}" id="product_{{ product.id }}">
+                <label for="product_{{ product.id }}">
+                    <strong>{{ product.name }}</strong> - R$ {{ "%.2f"|format(product.price) }}
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn">Criar Pedido</button>
+    </form>
+{% endblock %}

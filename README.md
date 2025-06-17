@@ -193,8 +193,8 @@ Siga os passos abaixo para configurar e rodar o projeto em sua máquina local.
 
 Este projeto foi concebido e estruturado por:
 
--   Pablo Carvalho do Nascimento dos Santos 
 -   Enzo Mitsuo Tokushige Costa 
--   Mateus Oliveira Viana 
--   Paulo Cesar Façanha Silva Filho 
 -   Fábio Leonardo Aguiar Rodrigues 
+-   Mateus Oliveira Viana 
+-   Pablo Carvalho do Nascimento dos Santos 
+-   Paulo Cesar Façanha Silva Filho

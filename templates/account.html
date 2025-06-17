@@ -1,39 +1,40 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <div class="user-profile">
-        <h1>Minha Conta</h1>
-        <div class="user-info">
-            <h2>Informações do Perfil</h2>
-            <div class="profile-details">
-                <p><strong>Nome:</strong> <span id="userName">John</span></p>
-                <p><strong>Sobrenome:</strong> <span id="userLastName">Doe</span></p>
-                <p><strong>Email:</strong> <span id="userEmail">john.doe@example.com</span></p>
-            </div>
-        </div>
+<section class="max-w-4xl mx-auto py-10">
+    <h1 class="text-3xl font-bold text-emerald-800 mb-8">Minha Conta</h1>
 
-        <div class="orders-section">
-            <h2>Meus Pedidos</h2>
-            <div class="orders-list">
-                {% if orders %}
-                    {% for order in orders %}
-                        <div class="order-card">
-                            <h3>Pedido #{{ order.id }}</h3>
-                            <div class="order-meta">
-                                <span class="status-{{ order.status.lower() }}">{{ order.status }}</span>
-                                <span>R$ {{ "%.2f"|format(order.total_price) }}</span>
-                            </div>
-                            <ul>
-                                {% for product_name in order.products %}
-                                    <li>{{ product_name }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <p>Você ainda não tem pedidos.</p>
-                {% endif %}
-            </div>
+    <div class="bg-white rounded-lg shadow-md p-6 mb-10">
+        <h2 class="text-xl font-semibold text-emerald-700 mb-4">Informações do Perfil</h2>
+        <div class="space-y-2">
+            <p><strong>Nome:</strong> <span id="userName">John</span></p>
+            <p><strong>Sobrenome:</strong> <span id="userLastName">Doe</span></p>
+            <p><strong>Email:</strong> <span id="userEmail">john.doe@example.com</span></p>
         </div>
     </div>
+
+    <div>
+        <h2 class="text-xl font-semibold text-emerald-700 mb-4">Meus Pedidos</h2>
+        <div class="space-y-4">
+            {% if orders %}
+                {% for order in orders %}
+                <div class="bg-white border border-emerald-100 rounded-lg p-5 shadow-sm">
+                    <h3 class="text-lg font-bold text-emerald-800 mb-2">Pedido #{{ order.id }}</h3>
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span class="font-medium capitalize status-{{ order.status.lower() }}">{{ order.status }}</span>
+                        <span>R$ {{ "%.2f"|format(order.total_price) }}</span>
+                    </div>
+                    <ul class="list-disc list-inside text-sm text-gray-700">
+                        {% for product_name in order.products %}
+                            <li>{{ product_name }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-gray-500">Você ainda não tem pedidos.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
 {% endblock %}

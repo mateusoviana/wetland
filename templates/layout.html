@@ -3,29 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>wetland</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Wetland Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
 </head>
-<body>
-    <header>
-        <div class="nav-header">
-            <a href="{{ url_for('index') }}">
-                <img src="{{ url_for('static', filename='images/header.jpg') }}" alt="Header da Wetland" class="header-banner">
+<body class="bg-emerald-50 text-gray-800">
+    <header class="bg-white shadow">
+        <div class="flex justify-between items-center max-w-6xl mx-auto px-4 py-3">
+            <a href="{{ url_for('index') }}" class="flex items-center gap-4">
+                <img src="{{ url_for('static', filename='images/header.jpg') }}" alt="Header da Wetland" class="w-2/3 h-auto rounded">
             </a>
-            <a href="{{ url_for('account') }}" class="account-icon" title="My Account">
+            <a href="{{ url_for('account') }}" class="text-2xl text-emerald-800 hover:text-emerald-600 transition" title="Minha Conta">
                 <i class="fas fa-user-circle"></i>
             </a>
         </div>
     </header>
 
-    <div class="container">
-        <main>
-            {% block content %}{% endblock %}
-        </main>
-        <footer>
-            <p>Projeto 2 - CSI22 | ITA</p>
-        </footer>
-    </div>
+    <main class="max-w-6xl mx-auto p-6">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="text-center text-sm text-emerald-900 py-6 border-t border-emerald-200">
+        Projeto 2 - CSI22 | ITA
+    </footer>
 </body>
 </html>

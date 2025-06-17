@@ -1,11 +1,12 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<h2 style="text-align: center;">Nossos Produtos</h2>
+<section class="text-center py-8">
+    <h2 class="text-3xl font-bold text-emerald-800">Nossos Produtos</h2>
+</section>
 
-<!-- Filtros -->
-<form method="get" style="margin-bottom: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-    <select name="seller" style="padding: 5px; min-width: 180px;">
+<form method="get" class="flex flex-wrap gap-4 justify-center mb-8">
+    <select name="seller" class="px-4 py-2 min-w-[180px] border border-gray-300 rounded">
         <option value="">Todos os Vendedores</option>
         {% for seller in sellers %}
             <option value="{{ seller }}" {% if seller == selected_seller %}selected{% endif %}>{{ seller }}</option>
@@ -13,31 +14,25 @@
     </select>
 
     <input type="number" name="min_price" placeholder="Preço mínimo" value="{{ min_price or '' }}" step="0.01"
-           style="padding: 5px; width: 120px;">
+           class="px-4 py-2 w-32 border border-gray-300 rounded">
     <input type="number" name="max_price" placeholder="Preço máximo" value="{{ max_price or '' }}" step="0.01"
-           style="padding: 5px; width: 120px;">
-    
-    <button type="submit" style="padding: 5px 15px; background-color: #2a9d8f; color: white; border: none; border-radius: 5px;">
-        Filtrar
-    </button>
+           class="px-4 py-2 w-32 border border-gray-300 rounded">
+
+    <button type="submit" class="px-6 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700">Filtrar</button>
 </form>
 
-<!-- Lista de produtos -->
-<div class="product-grid" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
-
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
     {% for product in products %}
-    <div class="product-card" style="border: 1px solid #ddd; border-radius: 8px; width: 250px; padding: 15px; text-align: center; box-shadow: 2px 2px 6px rgba(0,0,0,0.1);">
-        <a href="/produto/{{ product.id }}" style="text-decoration: none; color: inherit;">
-            <img src="{{ product.image_url }}" alt="{{ product.name }}" 
-                 style="width: 100%; height: 200px; object-fit: contain; border-radius: 4px; background: white;">
-            <h3 style="margin: 10px 0;">{{ product.name }}</h3>
-            <p style="color: #555;">{{ product.description }}</p>
-            <p style="color: #777; font-size: 0.9em; margin-top: 4px;"><strong>Vendido por:</strong> {{ product.seller }}</p>
-            <p style="font-size: 1.2em; font-weight: bold; color: #2a9d8f;">R$ {{ "%.2f"|format(product.price) }}</p>
-            <button style="background-color: #264653; color: white; padding: 10px; border: none; border-radius: 5px; margin-top: 10px;">Ver Produto</button>
+    <div class="border rounded shadow hover:shadow-md transition p-4 flex flex-col items-center bg-white">
+        <a href="/produto/{{ product.id }}" class="w-full text-center space-y-2">
+            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-48 object-contain rounded bg-white">
+            <h3 class="text-lg font-semibold">{{ product.name }}</h3>
+            <p class="text-sm text-gray-600">{{ product.description }}</p>
+            <p class="text-sm text-gray-500"><strong>Vendido por:</strong> {{ product.seller }}</p>
+            <p class="text-lg font-bold text-emerald-700">R$ {{ "%.2f"|format(product.price) }}</p>
+            <button class="mt-2 px-4 py-2 bg-emerald-800 text-white rounded hover:bg-emerald-900">Ver Produto</button>
         </a>
     </div>
     {% endfor %}
-
 </div>
 {% endblock %}

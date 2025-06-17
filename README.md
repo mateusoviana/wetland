@@ -46,7 +46,7 @@ Siga os passos abaixo para configurar e rodar o projeto em sua máquina local.
 
 1.  **Clone o repositório:**
     ```bash
-    git clone <URL_DO_SEU_REPOSITORIO>
+    git clone https://github.com/mateusoviana/wetland
     cd ecommerce
     ```
 
@@ -107,28 +107,28 @@ Bem-vindo ao repositório do projeto Wetland! Uma plataforma de e-commerce inspi
 
 ## 📖 Descrição do Projeto
 
-[cite_start]Este projeto é uma plataforma de marketplace digital, acessível e democrática[cite: 2]. [cite_start]Inspirada em grandes players como Mercado Livre, OLX e Shopee [cite: 3][cite_start], a Wetland visa permitir que qualquer pessoa, física ou jurídica, possa vender seus produtos de maneira simples e segura.
+Este projeto é uma plataforma de marketplace digital, acessível e democrática. Inspirada em grandes players como Mercado Livre, OLX e Shopee, a Wetland visa permitir que qualquer pessoa, física ou jurídica, possa vender seus produtos de maneira simples e segura.
 
-[cite_start]O sistema está sendo construído com uma arquitetura modular e escalável, utilizando Padrões de Projeto para garantir um código robusto, flexível e de fácil manutenção.
+O sistema está sendo construído com uma arquitetura modular e escalável, utilizando Padrões de Projeto para garantir um código robusto, flexível e de fácil manutenção.
 
 ### ✨ Funcionalidades Planejadas
 
--   [cite_start]Painel público para compradores navegarem, buscarem e adquirirem produtos.
--   [cite_start]Painel do vendedor para cadastro de produtos, acompanhamento de pedidos e configuração de entrega.
--   [cite_start]Suporte a múltiplos métodos de pagamento e envio.
--   [cite_start]Sistema de promoções e cupons.
--   [cite_start]Sistema de notificações para status de pedidos.
--   [cite_start]Recomendações personalizadas de produtos.
+-   Painel público para compradores navegarem, buscarem e adquirirem produtos.
+-   Painel do vendedor para cadastro de produtos, acompanhamento de pedidos e configuração de entrega.
+-   Suporte a múltiplos métodos de pagamento e envio.
+-   Sistema de promoções e cupons.
+-   Sistema de notificações para status de pedidos.
+-   Recomendações personalizadas de produtos.
 
 ## 🏗️ Arquitetura e Padrões de Projeto
 
-[cite_start]A base do projeto utiliza Padrões de Projeto para garantir a reutilização e adaptabilidade do código.
+A base do projeto utiliza Padrões de Projeto para garantir a reutilização e adaptabilidade do código.
 
--   [cite_start]**Factory Method**: Usado para gerenciar a criação de diferentes tipos de usuários (`Admin`, `Seller`, `Customer`) e suas permissões.
--   [cite_start]**Builder**: Utilizado para a construção de objetos complexos de Pedido, garantindo sua imutabilidade após a finalização.
--   [cite_start]**State**: Gerencia a lógica do ciclo de vida de um pedido, alterando seu comportamento conforme o status muda (`Pending` → `Paid` → `Shipped` → `Delivered`).
--   [cite_start]**Strategy**: Permite a implementação de diferentes algoritmos para o cálculo de frete, que podem ser trocados dinamicamente.
--   [cite_start]**Observer**: Utilizado para o sistema de notificações, permitindo que diferentes partes do sistema reajam a eventos, como a mudança de status de um pedido.
+-   **Factory Method**: Usado para gerenciar a criação de diferentes tipos de usuários (`Admin`, `Seller`, `Customer`) e suas permissões.
+-   **Builder**: Utilizado para a construção de objetos complexos de Pedido, garantindo sua imutabilidade após a finalização.
+-   **State**: Gerencia a lógica do ciclo de vida de um pedido, alterando seu comportamento conforme o status muda (`Pending` → `Paid` → `Shipped` → `Delivered`).
+-   **Strategy**: Permite a implementação de diferentes algoritmos para o cálculo de frete, que podem ser trocados dinamicamente.
+-   **Observer**: Utilizado para o sistema de notificações, permitindo que diferentes partes do sistema reajam a eventos, como a mudança de status de um pedido.
 
 ## 🔧 Tecnologias Utilizadas
 

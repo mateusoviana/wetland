@@ -1,11 +1,10 @@
-# order_processing.py
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import List, Optional
 from notification_system import event_manager
 
 
-# --- Padrão State: Gerenciamento do Status do Pedido ---
+# --- State Pattern: Order Status Management ---
 class OrderState(ABC):
     """Define a interface para todos os estados de um pedido."""
 
@@ -54,13 +53,13 @@ class DeliveredState(OrderState):
         return "Delivered"
 
 
-# --- Objeto Principal: Pedido (Order) ---
+# --- Main Object: Order ---
 class Order:
     def __init__(self, order_id: int, products: List[str], total_price: float):
         self.id = order_id
-        self.products = tuple(products)  # Imutável
-        self.total_price = total_price  # Imutável
-        self._state: OrderState = PendingState()  # Estado inicial
+        self.products = tuple(products)
+        self.total_price = total_price
+        self._state: OrderState = PendingState()  # Initial state
 
     def set_state(self, state: OrderState):
         self._state = state
@@ -77,7 +76,7 @@ class Order:
         return f"Order(id={self.id}, status='{self.status}', products={self.products}, total={self.total_price})"
 
 
-# --- Padrão Builder: Construção do Pedido ---
+# --- Builder Pattern: Order Builder ---
 class OrderBuilder:
     """Construtor para criar um objeto Order de forma segura."""
 
@@ -103,7 +102,6 @@ class OrderBuilder:
         if not self._order_id or not self._products:
             raise ValueError("ID do pedido e produtos são necessários para construir um pedido.")
 
-        # Cria a instância imutável do Pedido
         order = Order(
             order_id=self._order_id,
             products=self._products,

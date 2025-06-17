@@ -1,13 +1,12 @@
-# shipping_calculator.py
 from abc import ABC, abstractmethod
 
-# --- Interface da Estratégia ---
+# --- Strategy Interface ---
 class ShippingStrategy(ABC):
     @abstractmethod
     def calculate(self, weight_kg: float, distance_km: float) -> float:
         pass
 
-# --- Estratégias Concretas ---
+# --- Concrete Strategies ---
 class SedexStrategy(ShippingStrategy):
     def calculate(self, weight_kg: float, distance_km: float) -> float:
         # Lógica de cálculo para Sedex (exemplo)
@@ -22,7 +21,7 @@ class LocalPickupStrategy(ShippingStrategy):
     def calculate(self, weight_kg: float, distance_km: float) -> float:
         return 0.0 # Retirada no local não tem custo de frete
 
-# --- Contexto ---
+# --- Context ---
 class ShippingContext:
     def __init__(self, strategy: ShippingStrategy):
         self._strategy = strategy

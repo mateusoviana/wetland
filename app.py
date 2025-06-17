@@ -148,8 +148,28 @@ def product_page(product_id):
     if not product:
         abort(404)
     return render_template('product.html', product=product)
+@app.route('/comprar/<int:product_id>', methods=['POST'])
+def comprar(product_id):
+    product = PRODUCTS_DB.get(product_id)
+    if not product:
+        abort(404)
 
+    builder = OrderBuilder()
+    new_order_id = len(ORDERS_DB) + 1
+    builder.set_id(new_order_id)
+    builder.add_product(product.name, product.price)
 
+    # Simula peso e envio
+    total_weight = 0.5
+    shipping_strategy = SedexStrategy()
+    shipping_context = ShippingContext(shipping_strategy)
+    shipping_cost = shipping_context.execute_calculation(weight_kg=total_weight, distance_km=100)
+
+    builder.apply_shipping(shipping_cost)
+    new_order = builder.build()
+    ORDERS_DB[new_order.id] = new_order
+
+    return redirect(url_for('view_order', order_id=new_order.id))
 if __name__ == '__main__':
     # Roda o servidor web no modo de desenvolvimento
     app.run(debug=True, port=5001)

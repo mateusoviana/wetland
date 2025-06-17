@@ -14,16 +14,30 @@
     </style>
 </head>
 <body class="bg-emerald-50 text-gray-800">
-    <header class="bg-white shadow">
-        <div class="flex justify-between items-center max-w-6xl mx-auto px-4 py-3">
-            <a href="{{ url_for('index') }}" class="flex items-center gap-4">
-                <img src="{{ url_for('static', filename='images/header.jpg') }}" alt="Header da Wetland" class="w-2/3 h-auto rounded">
-            </a>
-            <a href="{{ url_for('account') }}" class="text-2xl text-emerald-800 hover:text-emerald-600 transition" title="Minha Conta">
-                <i class="fas fa-user-circle"></i>
-            </a>
-        </div>
-    </header>
+    <header class="bg-white shadow-sm border-b border-emerald-100">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <!-- Logo -->
+        <a href="{{ url_for('index') }}" class="flex items-center gap-3">
+            <!-- Substituindo a logo pela logo2.png -->
+            <img src="{{ url_for('static', filename='images/logo2.png') }}" alt="Logo Wetland" class="h-12 w-auto">
+            <!-- Apliquei o estilo para o texto 'WETLAND' em maiúsculas e com maior tamanho -->
+            <span class="text-3xl font-semibold text-emerald-900 uppercase tracking-widest">Wetland</span>
+        </a>
+
+        <!-- Conta -->
+        <a href="{{ url_for('account') }}" class="text-3xl text-emerald-800 hover:text-emerald-600 transition duration-200" title="Minha Conta">
+            <i class="fas fa-user-circle"></i>
+        </a>
+    </div>
+</header>
+
+    {% if request.endpoint != 'index' %}
+    <div class="max-w-7xl mx-auto px-1 py-2 text-left">
+        <button onclick="window.history.back()" class="w-12 h-12 bg-emerald-800 text-white rounded-full flex items-center justify-center transition duration-200 hover:bg-emerald-700">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+    </div>
+    {% endif %}
 
     <main class="max-w-6xl mx-auto p-6">
         {% block content %}{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="user-profile">
+        <h1>Minha Conta</h1>
+        <div class="user-info">
+            <h2>Informações do Perfil</h2>
+            <div class="profile-details">
+                <p><strong>Nome:</strong> <span id="userName">John</span></p>
+                <p><strong>Sobrenome:</strong> <span id="userLastName">Doe</span></p>
+                <p><strong>Email:</strong> <span id="userEmail">john.doe@example.com</span></p>
+            </div>
+        </div>
+
+        <div class="orders-section">
+            <h2>Meus Pedidos</h2>
+            <div class="orders-list">
+                {% if orders %}
+                    {% for order in orders %}
+                        <div class="order-card">
+                            <h3>Pedido #{{ order.id }}</h3>
+                            <div class="order-meta">
+                                <span class="status-{{ order.status.lower() }}">{{ order.status }}</span>
+                                <span>R$ {{ "%.2f"|format(order.total_price) }}</span>
+                            </div>
+                            <ul>
+                                {% for product_name in order.products %}
+                                    <li>{{ product_name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Você ainda não tem pedidos.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -98,6 +98,12 @@ def next_status(order_id):
         order.proceed_to_next_status()
     return redirect(url_for('view_order', order_id=order_id))
 
+@app.route('/account')
+def account():
+    # Get all orders stored in the ORDERS_DB
+    # Assuming you have a global ORDERS_DB dictionary storing the orders
+    orders = list(ORDERS_DB.values())
+    return render_template('account.html', orders=orders)
 
 if __name__ == '__main__':
     # Roda o servidor web no modo de desenvolvimento

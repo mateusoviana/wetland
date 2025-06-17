@@ -1,6 +1,14 @@
 {% extends "layout.html" %}
 
 {% block content %}
+<!-- Notificação de sucesso -->
+<div id="successMessage" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+  <div class="flex items-center gap-2">
+    <i class="fas fa-check-circle"></i>
+    <span>Produto adicionado ao carrinho!</span>
+  </div>
+</div>
+
 <section class="max-w-5xl mx-auto py-10 px-4">
   <div class="flex flex-col md:flex-row gap-10 items-start bg-white rounded-lg shadow-lg p-6">
     <!-- Imagem do produto -->
@@ -43,7 +51,7 @@
       <div class="space-y-4">
         {% if product.stock > 0 %}
           <!-- Seletor de quantidade e adicionar ao carrinho -->
-          <form action="{{ url_for('add_to_cart_route', product_id=product.id) }}" method="post" class="space-y-4">
+          <div class="space-y-4">
             <div class="flex items-center gap-4 justify-center md:justify-start">
               <label for="quantity" class="font-medium text-emerald-800">Quantidade:</label>
               <div class="flex items-center border border-gray-300 rounded-lg">
@@ -54,10 +62,10 @@
               </div>
             </div>
             
-            <button type="submit" class="w-full bg-emerald-600 text-white py-3 px-6 rounded-lg hover:bg-emerald-700 transition duration-200 font-medium text-lg">
+            <button onclick="addToCartAjax()" id="addToCartBtn" class="w-full bg-emerald-600 text-white py-3 px-6 rounded-lg hover:bg-emerald-700 transition duration-200 font-medium text-lg">
               🛒 Adicionar ao Carrinho
             </button>
-          </form>
+          </div>
           
           <!-- Comprar agora -->
           <form action="{{ url_for('checkout') }}" method="post">
@@ -99,6 +107,13 @@
   </div>
 </section>
 
+<!-- Hidden data for JavaScript -->
+<div id="productData" style="display: none;" 
+     data-id="{{ product.id }}" 
+     data-name="{{ product.name }}" 
+     data-price="{{ product.price }}" 
+     data-stock="{{ product.stock }}"></div>
+
 <script>
 function decreaseQty() {
     const qtyInput = document.getElementById('quantity');
@@ -116,5 +131,135 @@ function increaseQty() {
         qtyInput.value = currentValue + 1;
     }
 }
+
+function showSuccessMessage(message) {
+    const successDiv = document.getElementById('successMessage');
+    const messageSpan = successDiv.querySelector('span');
+    messageSpan.textContent = message;
+    
+    successDiv.classList.remove('hidden');
+    
+    setTimeout(function() {
+        successDiv.classList.add('hidden');
+    }, 3000);
+}
+
+function addToCartAjax() {
+    const btn = document.getElementById('addToCartBtn');
+    const quantityInput = document.getElementById('quantity');
+    const quantity = parseInt(quantityInput.value);
+    const productData = document.getElementById('productData');
+    const productId = productData.getAttribute('data-id');
+    
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Adicionando...';
+    btn.disabled = true;
+    
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/carrinho/adicionar/' + productId, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            
+            if (xhr.status === 200) {
+                try {
+                    const data = JSON.parse(xhr.responseText);
+                    if (data.success) {
+                        showSuccessMessage(data.message);
+                        updateCartBadge(data.cart_count);
+                        
+                        // Aguardar um pouco e então abrir o carrinho
+                        setTimeout(function() {
+                            // Tentar diferentes formas de abrir o carrinho
+                            if (window.openCart) {
+                                window.openCart();
+                            } else if (typeof openCart === 'function') {
+                                openCart();
+                            } else {
+                                // Fallback: recarregar a página com parâmetro
+                                window.location.href = window.location.pathname + '?cart_added=true';
+                            }
+                        }, 500);
+                    } else {
+                        showErrorMessage('Erro ao adicionar produto ao carrinho');
+                    }
+                } catch (e) {
+                    console.error('Erro ao processar resposta:', e);
+                    showErrorMessage('Erro ao processar resposta do servidor');
+                }
+            } else {
+                showErrorMessage('Erro ao adicionar produto ao carrinho');
+            }
+        }
+    };
+    
+    xhr.send(JSON.stringify({
+        quantity: quantity
+    }));
+}
+
+function updateCartBadge(count) {
+    let cartBadge = document.getElementById('cartBadge');
+    if (count > 0) {
+        if (cartBadge) {
+            cartBadge.textContent = count;
+            cartBadge.classList.remove('hidden');
+        } else {
+            const cartToggle = document.getElementById('cartToggle');
+            if (cartToggle) {
+                const badge = document.createElement('span');
+                badge.id = 'cartBadge';
+                badge.className = 'absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold';
+                badge.textContent = count;
+                cartToggle.appendChild(badge);
+            }
+        }
+    } else if (cartBadge) {
+        cartBadge.classList.add('hidden');
+    }
+}
+
+function showErrorMessage(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+    errorDiv.innerHTML = '<div class="flex items-center gap-2"><i class="fas fa-exclamation-circle"></i><span>' + message + '</span></div>';
+    
+    document.body.appendChild(errorDiv);
+    
+    setTimeout(function() {
+        errorDiv.remove();
+    }, 3000);
+}
+
+// Verificar parâmetros da URL
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Se veio de um redirect com cart_added=true, abrir o carrinho
+    if (urlParams.get('cart_added') === 'true') {
+        showSuccessMessage('Produto adicionado ao carrinho com sucesso!');
+        // Limpar URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        // Tentar abrir o carrinho
+        setTimeout(function() {
+            if (window.openCart) {
+                window.openCart();
+            } else if (typeof openCart === 'function') {
+                openCart();
+            }
+        }, 100);
+    }
+    
+    // Fallback para parâmetro added=true
+    if (urlParams.get('added') === 'true') {
+        showSuccessMessage('Produto adicionado ao carrinho com sucesso!');
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+});
 </script>
 {% endblock %}

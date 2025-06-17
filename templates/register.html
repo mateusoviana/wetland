@@ -1,0 +1,104 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Criar Conta</h1>
+            <p class="auth-subtitle">Junte-se ao Wetland e comece a comprar ou vender!</p>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'error' if category == 'error' else category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" class="auth-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name">Nome *</label>
+                    <div class="input-group">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="first_name" name="first_name" required 
+                               value="{{ request.form.get('first_name', '') }}"
+                               placeholder="Digite seu nome">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="last_name">Sobrenome *</label>
+                    <div class="input-group">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" id="last_name" name="last_name" required
+                               value="{{ request.form.get('last_name', '') }}"
+                               placeholder="Digite seu sobrenome">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <div class="input-group">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email" name="email" required
+                           value="{{ request.form.get('email', '') }}"
+                           placeholder="Digite seu email">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Senha *</label>
+                <div class="input-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password" name="password" required
+                           placeholder="Digite sua senha">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Telefone</label>
+                <div class="input-group">
+                    <i class="fas fa-phone input-icon"></i>
+                    <input type="tel" id="phone" name="phone" 
+                           value="{{ request.form.get('phone', '') }}"
+                           placeholder="Digite seu telefone">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="address">Endereço</label>
+                <div class="input-group">
+                    <i class="fas fa-map-marker-alt input-icon"></i>
+                    <textarea id="address" name="address" rows="3" 
+                              placeholder="Digite seu endereço">{{ request.form.get('address', '') }}</textarea>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="user_type">Tipo de Conta</label>
+                <div class="input-group">
+                    <i class="fas fa-users input-icon"></i>
+                    <select id="user_type" name="user_type">
+                        <option value="customer" selected>Cliente - Quero comprar produtos</option>
+                        <option value="seller">Vendedor - Quero vender produtos</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-user-plus"></i>
+                Criar Conta
+            </button>
+        </form>
+        
+        <div class="auth-links">
+            <p>Já tem uma conta? <a href="{{ url_for('login') }}">Faça login</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,7 +1,25 @@
+/* Variáveis de cores do Wetland - Baseadas na Logo */
+:root {
+    --wetland-primary: #20403B;      /* Verde escuro da logo */
+    --wetland-secondary: #416D52;    /* Verde médio da logo */
+    --wetland-accent: #86C0B1;       /* Verde claro da logo */
+    --wetland-light: #F0F8F5;        /* Verde muito claro */
+    --wetland-dark: #0D1F1C;         /* Verde muito escuro da logo */
+    --wetland-success: #35645C;      /* Verde sucesso da logo */
+    --wetland-warning: #FFA500;      /* Laranja */
+    --wetland-error: #DC143C;        /* Vermelho */
+    --wetland-text: #0D1F1C;         /* Verde muito escuro */
+    --wetland-text-light: #416D52;   /* Verde médio */
+    --wetland-bg: #F8FCFA;           /* Verde muito claro */
+    --wetland-card: #FFFFFF;         /* Branco */
+    --wetland-border: #86C0B1;       /* Verde claro da logo */
+    --wetland-hover: #E8F5F0;        /* Verde hover */
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background-color: #f4f7f6;
-    color: #333;
+    background-color: var(--wetland-bg);
+    color: var(--wetland-text);
     margin: 0;
     padding: 20px;
 }
@@ -9,21 +27,21 @@ body {
 .container {
     max-width: 800px;
     margin: 0 auto;
-    background-color: #fff;
+    background-color: var(--wetland-card);
     padding: 20px 40px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(32, 64, 59, 0.1);
 }
 
 header h1 {
-    color: #2c3e50;
+    color: var(--wetland-primary);
     text-align: center;
-    border-bottom: 2px solid #e0e0e0;
+    border-bottom: 2px solid var(--wetland-border);
     padding-bottom: 15px;
 }
 
 h2 {
-    color: #34495e;
+    color: var(--wetland-dark);
 }
 
 .product-list {
@@ -32,7 +50,7 @@ h2 {
 
 .product-item {
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--wetland-border);
     border-radius: 5px;
     margin-bottom: 10px;
     display: flex;
@@ -45,8 +63,8 @@ h2 {
 
 .btn {
     display: inline-block;
-    background-color: #3498db;
-    color: #fff;
+    background-color: var(--wetland-primary);
+    color: white;
     padding: 12px 20px;
     border: none;
     border-radius: 5px;
@@ -54,37 +72,39 @@ h2 {
     font-size: 16px;
     text-decoration: none;
     text-align: center;
+    transition: all 0.3s ease;
 }
 
 .btn:hover {
-    background-color: #2980b9;
+    background-color: var(--wetland-secondary);
+    transform: translateY(-1px);
 }
 
 .order-details {
-    background-color: #ecf0f1;
+    background-color: var(--wetland-light);
     padding: 20px;
     border-radius: 5px;
     margin-bottom: 20px;
 }
 
-.status-pending { color: #f39c12; font-weight: bold; }
-.status-paid { color: #27ae60; font-weight: bold; }
-.status-shipped { color: #2980b9; font-weight: bold; }
-.status-delivered { color: #8e44ad; font-weight: bold; }
+.status-pending { color: var(--wetland-warning); font-weight: bold; }
+.status-paid { color: var(--wetland-success); font-weight: bold; }
+.status-shipped { color: var(--wetland-secondary); font-weight: bold; }
+.status-delivered { color: var(--wetland-primary); font-weight: bold; }
 
 .success-message {
-    color: #27ae60;
+    color: var(--wetland-success);
     font-weight: bold;
     text-align: center;
     padding: 15px;
-    background-color: #eafaf1;
+    background-color: var(--wetland-hover);
     border-radius: 5px;
 }
 
 .back-link {
     display: inline-block;
     margin-top: 20px;
-    color: #3498db;
+    color: var(--wetland-primary);
     text-decoration: none;
 }
 .back-link:hover {
@@ -95,8 +115,8 @@ footer {
     text-align: center;
     margin-top: 30px;
     padding-top: 15px;
-    border-top: 1px solid #e0e0e0;
-    color: #7f8c8d;
+    border-top: 1px solid var(--wetland-border);
+    color: var(--wetland-text-light);
     font-size: 0.9em;
 }
 
@@ -122,7 +142,7 @@ header {
 
 .account-icon {
     font-size: 24px;
-    color: #2c3e50;
+    color: var(--wetland-primary);
     text-decoration: none;
     padding: 8px;
     border-radius: 50%;
@@ -130,56 +150,635 @@ header {
 }
 
 .account-icon:hover {
-    background-color: #f0f0f0;
+    background-color: var(--wetland-hover);
 }
 
+/* Perfil do usuário - Layout Vertical */
 .user-profile {
-    padding: 20px 0;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
 }
 
-.profile-details {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
-}
-
-.profile-details p {
-    margin: 10px 0;
-    font-size: 16px;
-}
-
-.orders-section {
-    margin-top: 30px;
-}
-
-.orders-list {
+.profile-header {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--wetland-border);
 }
 
+.profile-header h1 {
+    color: var(--wetland-primary);
+    margin: 0;
+}
+
+/* Seções verticais */
+.profile-section,
+.orders-section,
+.sales-section {
+    background: var(--wetland-card);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(32, 64, 59, 0.1);
+    margin-bottom: 2rem;
+    border: 1px solid var(--wetland-border);
+}
+
+.profile-section h2,
+.orders-section h2,
+.sales-section h2 {
+    color: var(--wetland-dark);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--wetland-border);
+}
+
+.profile-details .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--wetland-light);
+}
+
+.profile-details .detail-item:last-child {
+    border-bottom: none;
+}
+
+.profile-details .detail-item strong {
+    color: var(--wetland-dark);
+    font-weight: 600;
+}
+
+/* Cards de pedidos melhorados */
 .order-card {
-    background-color: #fff;
-    padding: 20px;
+    background: var(--wetland-light);
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--wetland-primary);
+    border: 1px solid var(--wetland-border);
 }
 
-.order-card h3 {
-    margin: 0 0 10px 0;
-    color: #2c3e50;
+.order-card.seller-order {
+    border-left-color: var(--wetland-success);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.order-header h3,
+.order-header h4 {
+    margin: 0;
+    color: var(--wetland-dark);
 }
 
 .order-meta {
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    color: #666;
-    font-size: 0.9em;
+    gap: 1rem;
+    align-items: center;
 }
 
-.user-info {
-    margin-bottom: 30px;
+.order-total {
+    font-weight: 600;
+    color: var(--wetland-success);
+    font-size: 1.1rem;
+}
+
+.order-content h4,
+.order-content h5 {
+    color: var(--wetland-dark);
+    margin-bottom: 0.5rem;
+}
+
+.order-products {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.order-products li {
+    padding: 0.25rem 0;
+    color: var(--wetland-text);
+}
+
+.order-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--wetland-border);
+}
+
+/* Status dos pedidos */
+.status-pending {
+    background-color: var(--wetland-warning);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-paid {
+    background-color: var(--wetland-secondary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-shipped {
+    background-color: var(--wetland-accent);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-delivered {
+    background-color: var(--wetland-success);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* Estatísticas de vendas */
+.sales-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, var(--wetland-primary) 0%, var(--wetland-secondary) 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(32, 64, 59, 0.2);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Estado vazio melhorado */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--wetland-text-light);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--wetland-border);
+}
+
+.empty-state p {
+    margin-bottom: 1rem;
+}
+
+.text-muted {
+    color: var(--wetland-text-light);
+    font-size: 0.9rem;
+}
+
+/* Badges */
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.badge-primary {
+    background-color: var(--wetland-primary);
+    color: white;
+}
+
+.badge-success {
+    background-color: var(--wetland-success);
+    color: white;
+}
+
+/* Dropdown do usuário */
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+    color: var(--wetland-primary);
+    text-decoration: none;
+}
+
+.dropdown-toggle:hover {
+    background-color: var(--wetland-hover);
+}
+
+.dropdown-toggle i.fa-chevron-down {
+    font-size: 0.8rem;
+    transition: transform 0.3s;
+}
+
+.dropdown-menu.show .fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--wetland-card);
+    border: 1px solid var(--wetland-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(32, 64, 59, 0.15);
+    min-width: 200px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s;
+}
+
+.dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: var(--wetland-text);
+    text-decoration: none;
+    transition: background-color 0.3s;
+    border-bottom: 1px solid var(--wetland-light);
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background-color: var(--wetland-hover);
+    color: var(--wetland-primary);
+}
+
+.dropdown-item i {
+    width: 16px;
+    text-align: center;
+}
+
+/* Navegação */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Botões corrigidos */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+    min-width: fit-content;
+}
+
+.btn-primary {
+    background-color: var(--wetland-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--wetland-secondary);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: var(--wetland-secondary);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: var(--wetland-accent);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--wetland-primary);
+    color: var(--wetland-primary);
+}
+
+.btn-outline:hover {
+    background: var(--wetland-primary);
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* Estilos para autenticação - Cores da Logo */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--wetland-primary) 0%, var(--wetland-secondary) 100%);
+}
+
+.auth-card {
+    background: var(--wetland-card);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(32, 64, 59, 0.2);
+    padding: 3rem;
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--wetland-border);
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--wetland-primary), var(--wetland-secondary));
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+    color: var(--wetland-primary);
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.auth-subtitle {
+    color: var(--wetland-text-light);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.auth-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.auth-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.auth-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--wetland-dark);
+    font-size: 0.9rem;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--wetland-text-light);
+    z-index: 1;
+    transition: color 0.3s;
+}
+
+.auth-form input,
+.auth-form select,
+.auth-form textarea {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    border: 2px solid var(--wetland-border);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s;
+    box-sizing: border-box;
+    background: var(--wetland-light);
+}
+
+.auth-form textarea {
+    padding-left: 3rem;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.auth-form input:focus,
+.auth-form select:focus,
+.auth-form textarea:focus {
+    outline: none;
+    border-color: var(--wetland-primary);
+    background: var(--wetland-card);
+    box-shadow: 0 0 0 3px rgba(32, 64, 59, 0.1);
+}
+
+.auth-form input:focus + .input-icon,
+.auth-form select:focus + .input-icon,
+.auth-form textarea:focus + .input-icon {
+    color: var(--wetland-primary);
+}
+
+.auth-form .btn-block {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--wetland-primary) 0%, var(--wetland-secondary) 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.auth-form .btn-block:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(32, 64, 59, 0.3);
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--wetland-border);
+}
+
+.auth-links p {
+    margin: 0;
+    color: var(--wetland-text-light);
+}
+
+.auth-links a {
+    color: var(--wetland-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.auth-links a:hover {
+    color: var(--wetland-secondary);
+    text-decoration: underline;
+}
+
+/* Alertas melhorados */
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: none;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.alert::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}
+
+.alert-success {
+    background-color: var(--wetland-hover);
+    color: var(--wetland-success);
+    border-left: 4px solid var(--wetland-success);
+}
+
+.alert-success::before {
+    content: "\f00c";
+}
+
+.alert-error {
+    background-color: #F8E8E8;
+    color: var(--wetland-error);
+    border-left: 4px solid var(--wetland-error);
+}
+
+.alert-error::before {
+    content: "\f071";
+}
+
+.alert-info {
+    background-color: #E8F0F8;
+    color: var(--wetland-secondary);
+    border-left: 4px solid var(--wetland-secondary);
+}
+
+.alert-info::before {
+    content: "\f05a";
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .user-profile {
+        padding: 1rem;
+    }
+    
+    .profile-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .order-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .sales-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .auth-container {
+        padding: 1rem;
+        min-height: 60vh;
+    }
+    
+    .auth-card {
+        padding: 2rem;
+        border-radius: 15px;
+    }
+    
+    .auth-form .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .auth-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .nav-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .dropdown-menu {
+        right: auto;
+        left: 0;
+        min-width: 180px;
+    }
 }

@@ -3,7 +3,7 @@
 {% block content %}
 <div class="user-profile">
     <div class="profile-header">
-        <h1>Minha Conta</h1>
+        <h1>Painel do Vendedor</h1>
         <a href="{{ url_for('logout') }}" class="btn btn-secondary">Sair</a>
     </div>
     
@@ -29,9 +29,7 @@
             </div>
             <div class="detail-item">
                 <strong>Tipo de Conta:</strong> 
-                <span class="badge badge-{{ 'primary' if user.user_type == 'customer' else 'success' }}">
-                    {{ 'Cliente' if user.user_type == 'customer' else 'Vendedor' }}
-                </span>
+                <span class="badge badge-success">Vendedor</span>
             </div>
             <div class="detail-item">
                 <strong>Membro desde:</strong> 
@@ -40,38 +38,63 @@
         </div>
     </div>
 
-    <!-- Seção de Pedidos -->
-    <div class="orders-section">
-        <h2>Meus Pedidos</h2>
+    <!-- Seção de Monitoramento de Vendas -->
+    <div class="sales-section">
+        <h2>Monitoramento de Vendas</h2>
+        <div class="sales-stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ orders|length }}</div>
+                <div class="stat-label">Pedidos Recebidos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">
+                    R$ {{ "%.2f"|format(orders|sum(attribute='total_price')) }}
+                </div>
+                <div class="stat-label">Valor Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">
+                    {{ orders|selectattr('status', 'equalto', 'Delivered')|list|length }}
+                </div>
+                <div class="stat-label">Entregues</div>
+            </div>
+        </div>
+        
         <div class="orders-list">
             {% if orders %}
+                <h3>Pedidos com seus produtos:</h3>
                 {% for order in orders %}
-                    <div class="order-card">
+                    <div class="order-card seller-order">
                         <div class="order-header">
-                            <h3>Pedido #{{ order.id }}</h3>
+                            <h4>Pedido #{{ order.id }}</h4>
                             <div class="order-meta">
                                 <span class="status-{{ order.status.lower() }}">{{ order.status }}</span>
                                 <span class="order-total">R$ {{ "%.2f"|format(order.total_price) }}</span>
                             </div>
                         </div>
                         <div class="order-content">
-                            <h4>Produtos:</h4>
+                            <h5>Produtos vendidos:</h5>
                             <ul class="order-products">
                                 {% for product_name in order.products %}
                                     <li>{{ product_name }}</li>
                                 {% endfor %}
                             </ul>
                         </div>
+                        <div class="order-actions">
+                            <a href="{{ url_for('view_order', order_id=order.id) }}" class="btn btn-outline">
+                                Ver Detalhes
+                            </a>
+                        </div>
                     </div>
                 {% endfor %}
             {% else %}
                 <div class="empty-state">
-                    <i class="fas fa-shopping-bag"></i>
-                    <p>Você ainda não tem pedidos.</p>
-                    <a href="{{ url_for('index') }}" class="btn btn-primary">Fazer primeira compra</a>
+                    <i class="fas fa-chart-line"></i>
+                    <p>Você ainda não tem vendas registradas.</p>
+                    <p class="text-muted">Quando clientes comprarem seus produtos, eles aparecerão aqui.</p>
                 </div>
             {% endif %}
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %} 

@@ -13,9 +13,41 @@
             <a href="{{ url_for('index') }}">
                 <img src="{{ url_for('static', filename='images/header.jpg') }}" alt="Header da Wetland" class="header-banner">
             </a>
-            <a href="{{ url_for('account') }}" class="account-icon" title="My Account">
-                <i class="fas fa-user-circle"></i>
-            </a>
+            <div class="nav-actions">
+                {% if current_user %}
+                    <div class="user-dropdown">
+                        <button class="account-icon dropdown-toggle" title="Minha Conta">
+                            <i class="fas fa-user-circle"></i>
+                            <span>{{ current_user.first_name }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="{{ url_for('account') }}" class="dropdown-item">
+                                <i class="fas fa-user"></i> Minha Conta
+                            </a>
+                            <a href="{{ url_for('logout') }}" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i> Sair
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="user-dropdown">
+                        <button class="account-icon dropdown-toggle" title="Conta">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Conta</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="{{ url_for('login') }}" class="dropdown-item">
+                                <i class="fas fa-sign-in-alt"></i> Entrar
+                            </a>
+                            <a href="{{ url_for('register') }}" class="dropdown-item">
+                                <i class="fas fa-user-plus"></i> Criar Conta
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </header>
 
@@ -27,5 +59,37 @@
             <p>Projeto 2 - CSI22 | ITA</p>
         </footer>
     </div>
+
+    <script>
+        // Toggle dropdown
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+            
+            dropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const dropdown = this.closest('.user-dropdown');
+                    const menu = dropdown.querySelector('.dropdown-menu');
+                    
+                    // Fechar outros dropdowns
+                    document.querySelectorAll('.dropdown-menu').forEach(m => {
+                        if (m !== menu) m.classList.remove('show');
+                    });
+                    
+                    // Toggle atual
+                    menu.classList.toggle('show');
+                });
+            });
+            
+            // Fechar dropdown ao clicar fora
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.user-dropdown')) {
+                    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

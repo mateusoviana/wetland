@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div style="max-width: 900px; margin: auto; padding: 20px;">
+    <div style="display: flex; flex-direction: row; gap: 30px;">
+        <img src="{{ product.image_url }}" alt="{{ product.name }}" style="width: 400px; height: auto; border-radius: 8px; object-fit: cover;">
+        <div>
+            <h2>{{ product.name }}</h2>
+            <p style="color: #555;">{{ product.description }}</p>
+            <p style="color: #333; margin-top: 5px;"><strong>Vendido por:</strong> {{ product.seller }}</p>
+            <p style="font-size: 1.5em; color: #2a9d8f; margin-top: 10px;">R$ {{ "%.2f"|format(product.price) }}</p>
+            <form action="/comprar/{{ product.id }}" method="post">
+                <button type="submit" style="padding: 10px 20px; background-color: #e76f51; color: white; border: none; border-radius: 5px;">Comprar Agora</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

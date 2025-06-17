@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 # Importa toda a lógica de negócio que já criamos
 from order_processing import OrderBuilder
-from shipping_calculator import ShippingContext, SedexStrategy
+from shipping_calculator import ShippingContext, SedexStrategy, PacStrategy, LocalPickupStrategy
 from notification_system import event_manager, EmailNotifier, SMSNotifier
 
 app = Flask(__name__)
@@ -133,12 +133,63 @@ def view_order(order_id):
     if not order:
         abort(404)  # Erro se o pedido não for encontrado
     
+    # Calcular custos de frete para diferentes métodos
+    total_weight = len(order.products) * 0.5  # Estimativa de 0.5kg por produto
+    distance_km = 100  # Distância estimada
+
+    # Calcular custos usando diferentes estratégias
+    sedex_strategy = SedexStrategy()
+    pac_strategy = PacStrategy()
+    local_pickup_strategy = LocalPickupStrategy()
+
+    shipping_context = ShippingContext(sedex_strategy)
+    sedex_cost = shipping_context.execute_calculation(weight_kg=total_weight, distance_km=distance_km)
+
+    shipping_context = ShippingContext(pac_strategy)
+    pac_cost = shipping_context.execute_calculation(weight_kg=total_weight, distance_km=distance_km)
+
+    shipping_context = ShippingContext(local_pickup_strategy)
+    local_pickup_cost = shipping_context.execute_calculation(weight_kg=total_weight, distance_km=distance_km)
+    
     cart_items, cart_total = get_cart_items()
     return render_template('order.html', 
                          order=order,
                          cart_items=cart_items,
-                         cart_total=cart_total)
+                         cart_total=cart_total,
+                         sedex_cost=sedex_cost,
+                         pac_cost=pac_cost,
+                         local_pickup_cost=local_pickup_cost)
 
+@app.route('/order/<int:order_id>/update_shipping', methods=['POST'])
+def update_shipping(order_id):
+    """Atualiza o método de envio do pedido."""
+    order = ORDERS_DB.get(order_id)
+    if not order or order.status != 'Pending':
+        abort(404)
+
+    shipping_method = request.form.get('shipping_method')
+    if not shipping_method:
+        abort(400)
+
+    # Calcular novo custo de frete
+    total_weight = len(order.products) * 0.5
+    distance_km = 100
+
+    # Selecionar estratégia baseada no método escolhido
+    if shipping_method == 'sedex':
+        strategy = SedexStrategy()
+    elif shipping_method == 'pac':
+        strategy = PacStrategy()
+    else:  # local_pickup
+        strategy = LocalPickupStrategy()
+
+    shipping_context = ShippingContext(strategy)
+    new_shipping_cost = shipping_context.execute_calculation(weight_kg=total_weight, distance_km=distance_km)
+
+    # Atualizar apenas o custo do frete
+    order.shipping_cost = new_shipping_cost
+
+    return redirect(url_for('view_order', order_id=order_id))
 
 @app.route('/order/<int:order_id>/next_status', methods=['POST'])
 def next_status(order_id):

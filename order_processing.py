@@ -57,9 +57,10 @@ class DeliveredState(OrderState):
 class Order:
     def __init__(self, order_id: int, products: List[str], total_price: float):
         self.id = order_id
-        self.products = tuple(products)
-        self.total_price = total_price
-        self._state: OrderState = PendingState()  # Initial state
+        self.products = tuple(products)  # Imutável
+        self._products_total = total_price  # Preço total dos produtos
+        self._shipping_cost = 0.0  # Custo do frete
+        self._state: OrderState = PendingState()  # Estado inicial
 
     def set_state(self, state: OrderState):
         self._state = state
@@ -72,6 +73,22 @@ class Order:
     def status(self):
         return self._state.get_status()
 
+    @property
+    def products_total(self):
+        return self._products_total
+
+    @property
+    def shipping_cost(self):
+        return self._shipping_cost
+
+    @shipping_cost.setter
+    def shipping_cost(self, value: float):
+        self._shipping_cost = value
+
+    @property
+    def total_price(self):
+        return self._products_total + self._shipping_cost
+
     def __str__(self):
         return f"Order(id={self.id}, status='{self.status}', products={self.products}, total={self.total_price})"
 
@@ -83,7 +100,8 @@ class OrderBuilder:
     def __init__(self):
         self._order_id: Optional[int] = None
         self._products: List[str] = []
-        self._total_price: float = 0.0
+        self._products_total: float = 0.0
+        self._shipping_cost: float = 0.0
 
     def set_id(self, order_id: int) -> OrderBuilder:
         self._order_id = order_id
@@ -91,21 +109,23 @@ class OrderBuilder:
 
     def add_product(self, product: str, price: float) -> OrderBuilder:
         self._products.append(product)
-        self._total_price += price
+        self._products_total += price
         return self
 
     def apply_shipping(self, shipping_cost: float) -> OrderBuilder:
-        self._total_price += shipping_cost
+        self._shipping_cost = shipping_cost
         return self
 
     def build(self) -> Order:
         if not self._order_id or not self._products:
             raise ValueError("ID do pedido e produtos são necessários para construir um pedido.")
 
+        # Cria a instância do Pedido
         order = Order(
             order_id=self._order_id,
             products=self._products,
-            total_price=self._total_price
+            total_price=self._products_total
         )
+        order.shipping_cost = self._shipping_cost
         event_manager.notify("order:created", {"order_id": order.id, "status": order.status})
         return order

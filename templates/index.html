@@ -23,16 +23,57 @@
 
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
     {% for product in products %}
-    <div class="border rounded shadow hover:shadow-md transition p-4 flex flex-col items-center bg-white">
-        <a href="/produto/{{ product.id }}" class="w-full text-center space-y-2">
+    <div class="border rounded-lg shadow hover:shadow-md transition p-4 bg-white relative">
+        <!-- Link para produto individual (só na imagem e título) -->
+        <a href="/produto/{{ product.id }}" class="block text-center space-y-2 hover:text-emerald-700">
             <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-48 object-contain rounded bg-white">
-            <h3 class="text-lg font-semibold">{{ product.name }}</h3>
+            <h3 class="text-lg font-semibold text-emerald-800">{{ product.name }}</h3>
+        </a>
+        
+        <!-- Informações do produto -->
+        <div class="text-center space-y-2 mt-2">
             <p class="text-sm text-gray-600">{{ product.description }}</p>
             <p class="text-sm text-gray-500"><strong>Vendido por:</strong> {{ product.seller }}</p>
             <p class="text-lg font-bold text-emerald-700">R$ {{ "%.2f"|format(product.price) }}</p>
-            <button class="mt-2 px-4 py-2 bg-emerald-800 text-white rounded hover:bg-emerald-900">Ver Produto</button>
-        </a>
+            
+            <!-- Estoque -->
+            <div class="text-xs">
+                {% if product.stock > 0 %}
+                    <span class="text-green-600">✓ {{ product.stock }} em estoque</span>
+                {% else %}
+                    <span class="text-red-600">✗ Indisponível</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Ações do produto -->
+        <div class="mt-4 space-y-2">
+            <a href="/produto/{{ product.id }}" class="block w-full px-4 py-2 bg-emerald-800 text-white rounded hover:bg-emerald-900 text-center text-sm">
+                Ver Detalhes
+            </a>
+            
+            {% if product.stock > 0 %}
+                <form action="{{ url_for('add_to_cart_route', product_id=product.id) }}" method="post" class="w-full">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="w-full px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 text-sm">
+                        🛒 Adicionar ao Carrinho
+                    </button>
+                </form>
+            {% else %}
+                <button disabled class="w-full px-4 py-2 bg-gray-400 text-white rounded cursor-not-allowed text-sm">
+                    Produto Indisponível
+                </button>
+            {% endif %}
+        </div>
     </div>
     {% endfor %}
 </div>
+
+{% if not products %}
+<div class="text-center py-12">
+    <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+    <p class="text-xl text-gray-600 mb-2">Nenhum produto encontrado</p>
+    <p class="text-gray-500">Tente ajustar os filtros ou explore nossa seleção completa.</p>
+</div>
+{% endif %}
 {% endblock %}

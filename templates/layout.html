@@ -11,25 +11,59 @@
         body {
             font-family: 'Poppins', sans-serif;
         }
+        .cart-sidebar {
+            transition: transform 0.3s ease-in-out;
+            right: -384px; /* Esconde completamente (largura w-96 = 384px) */
+        }
+        .cart-sidebar.closed {
+            transform: translateX(0);
+            right: -384px;
+        }
+        .cart-sidebar.open {
+            transform: translateX(0);
+            right: 0;
+        }
+        
+        /* Garantir que o overlay funcione */
+        .cart-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .cart-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="bg-emerald-50 text-gray-800">
     <header class="bg-white shadow-sm border-b border-emerald-100">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <!-- Logo -->
-        <a href="{{ url_for('index') }}" class="flex items-center gap-3">
-            <!-- Substituindo a logo pela logo2.png -->
-            <img src="{{ url_for('static', filename='images/logo2.png') }}" alt="Logo Wetland" class="h-12 w-auto">
-            <!-- Apliquei o estilo para o texto 'WETLAND' em maiúsculas e com maior tamanho -->
-            <span class="text-3xl font-semibold text-emerald-900 uppercase tracking-widest">Wetland</span>
-        </a>
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="{{ url_for('index') }}" class="flex items-center gap-3">
+                <img src="{{ url_for('static', filename='images/logo2.png') }}" alt="Logo Wetland" class="h-12 w-auto">
+                <span class="text-3xl font-semibold text-emerald-900 uppercase tracking-widest">Wetland</span>
+            </a>
 
-        <!-- Conta -->
-        <a href="{{ url_for('account') }}" class="text-3xl text-emerald-800 hover:text-emerald-600 transition duration-200" title="Minha Conta">
-            <i class="fas fa-user-circle"></i>
-        </a>
-    </div>
-</header>
+            <!-- Navegação direita -->
+            <div class="flex items-center gap-4">
+                <!-- Botão do carrinho (apenas na página inicial) -->
+                {% if request.endpoint == 'index' %}
+                <button id="cartToggle" class="relative bg-emerald-600 text-white p-3 rounded-full hover:bg-emerald-700 transition duration-200 shadow-lg">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    {% if cart_items and cart_items|length > 0 %}
+                    <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+                        {{ cart_items|length }}
+                    </span>
+                    {% endif %}
+                </button>
+                {% endif %}
+                
+                <!-- Conta -->
+                <a href="{{ url_for('account') }}" class="text-3xl text-emerald-800 hover:text-emerald-600 transition duration-200" title="Minha Conta">
+                    <i class="fas fa-user-circle"></i>
+                </a>
+            </div>
+        </div>
+    </header>
 
     {% if request.endpoint != 'index' %}
     <div class="max-w-7xl mx-auto px-1 py-2 text-left">
@@ -39,12 +73,213 @@
     </div>
     {% endif %}
 
-    <main class="max-w-6xl mx-auto p-6">
-        {% block content %}{% endblock %}
-    </main>
+    <!-- Layout principal -->
+    <div class="relative">
+        <main class="{% if request.endpoint == 'index' %}max-w-7xl{% else %}max-w-6xl{% endif %} mx-auto p-6">
+            {% block content %}{% endblock %}
+        </main>
+        
+        {% if request.endpoint == 'index' %}
+        <!-- Overlay escuro quando carrinho está aberto -->
+        <div id="cartOverlay" class="cart-overlay hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
+        
+        <!-- Carrinho lateral retrátil -->
+        <aside id="cartSidebar" class="cart-sidebar closed fixed top-0 w-96 h-full bg-white shadow-2xl z-50 border-l border-emerald-100">
+            <div class="p-6 h-full flex flex-col">
+                <!-- Cabeçalho do carrinho -->
+                <div class="flex items-center justify-between border-b border-emerald-100 pb-4 mb-4">
+                    <h3 class="text-xl font-semibold text-emerald-800 flex items-center gap-2">
+                        <i class="fas fa-shopping-cart"></i>
+                        Meu Carrinho
+                    </h3>
+                    <button id="closeCart" class="text-gray-500 hover:text-gray-700 text-xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Conteúdo do carrinho -->
+                <div class="flex-1 overflow-hidden flex flex-col">
+                    {% if cart_items and cart_items|length > 0 %}
+                        <!-- Lista de itens -->
+                        <div class="flex-1 overflow-y-auto space-y-4 mb-4">
+                            {% for item in cart_items %}
+                            <div class="relative border border-gray-200 rounded-lg p-4 bg-emerald-50" data-product-id="{{ item.product.id }}">
+                                <div class="flex gap-4">
+                                    <div class="w-20 h-20 bg-white rounded-md overflow-hidden flex items-center justify-center border">
+                                        <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="w-full h-full object-contain">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-medium text-emerald-800 truncate mb-1">{{ item.product.name }}</div>
+                                        <div class="text-emerald-600 font-bold mb-2">R$ {{ "%.2f"|format(item.product.price) }}</div>
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <form action="{{ url_for('update_cart_route', product_id=item.product.id) }}" method="post" class="flex items-center gap-2">
+                                                <button type="button" onclick="updateQuantity('{{ item.product.id }}', -1)" class="w-8 h-8 bg-emerald-600 text-white rounded hover:bg-emerald-700 flex items-center justify-center">-</button>
+                                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="99" class="w-16 text-center text-sm border border-gray-300 rounded">
+                                                <button type="button" onclick="updateQuantity('{{ item.product.id }}', 1)" class="w-8 h-8 bg-emerald-600 text-white rounded hover:bg-emerald-700 flex items-center justify-center">+</button>
+                                            </form>
+                                        </div>
+                                        <div class="text-sm text-gray-600">Total: R$ {{ "%.2f"|format(item.item_total) }}</div>
+                                    </div>
+                                </div>
+                                <button onclick="removeFromCart('{{ item.product.id }}')" class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 flex items-center justify-center" title="Remover item">×</button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Resumo e ações -->
+                        <div class="border-t border-emerald-100 pt-4 space-y-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-emerald-800">Total: R$ {{ "%.2f"|format(cart_total) if cart_total else "0.00" }}</div>
+                            </div>
+                            <div class="space-y-3">
+                                <form action="{{ url_for('checkout') }}" method="post">
+                                    <button type="submit" class="w-full bg-emerald-600 text-white py-3 px-4 rounded-lg hover:bg-emerald-700 transition duration-200 font-medium text-lg">
+                                        <i class="fas fa-credit-card mr-2"></i>
+                                        Finalizar Compra
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('clear_cart_route') }}" method="post">
+                                    <button type="submit" class="w-full bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200">
+                                        <i class="fas fa-trash mr-2"></i>
+                                        Limpar Carrinho
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- Carrinho vazio -->
+                        <div class="flex-1 flex flex-col items-center justify-center text-center text-gray-500">
+                            <i class="fas fa-shopping-cart text-6xl mb-4 text-gray-300"></i>
+                            <h4 class="text-xl font-medium mb-2">Seu carrinho está vazio</h4>
+                            <p class="text-sm mb-4">Adicione produtos para começar suas compras!</p>
+                            <button onclick="closeCart()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition duration-200">
+                                Continuar Comprando
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </aside>
+        {% endif %}
+    </div>
 
-    <footer class="text-center text-sm text-emerald-900 py-6 border-t border-emerald-200">
+    <footer class="text-center text-sm text-emerald-900 py-6 border-t border-emerald-200 max-w-7xl mx-auto">
         Projeto 2 - CSI22 | ITA
     </footer>
+
+    <script>
+        // Controle do carrinho retrátil
+        const cartToggle = document.getElementById('cartToggle');
+        const cartSidebar = document.getElementById('cartSidebar');
+        const cartOverlay = document.getElementById('cartOverlay');
+        const closeCartBtn = document.getElementById('closeCart');
+
+        console.log('Elementos encontrados:');
+        console.log('cartToggle:', cartToggle);
+        console.log('cartSidebar:', cartSidebar);
+        console.log('cartOverlay:', cartOverlay);
+        console.log('closeCartBtn:', closeCartBtn);
+
+        function openCart() {
+            console.log('Função openCart chamada');
+            if (cartSidebar) {
+                console.log('Abrindo carrinho...');
+                cartSidebar.classList.remove('closed');
+                cartSidebar.classList.add('open');
+                console.log('Classes do carrinho:', cartSidebar.className);
+            } else {
+                console.error('cartSidebar não encontrado!');
+            }
+            
+            if (cartOverlay) {
+                cartOverlay.classList.remove('hidden');
+                cartOverlay.style.opacity = '1';
+                cartOverlay.style.pointerEvents = 'auto';
+            } else {
+                console.error('cartOverlay não encontrado!');
+            }
+            
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCart() {
+            console.log('Função closeCart chamada');
+            if (cartSidebar) {
+                cartSidebar.classList.remove('open');
+                cartSidebar.classList.add('closed');
+            }
+            if (cartOverlay) {
+                cartOverlay.classList.add('hidden');
+                cartOverlay.style.opacity = '0';
+                cartOverlay.style.pointerEvents = 'none';
+            }
+            document.body.style.overflow = 'auto';
+        }
+
+        // Event listeners
+        if (cartToggle) {
+            console.log('Adicionando event listener ao cartToggle');
+            cartToggle.addEventListener('click', function(e) {
+                console.log('Botão do carrinho clicado');
+                e.preventDefault();
+                openCart();
+            });
+        } else {
+            console.error('cartToggle não encontrado!');
+        }
+
+        if (closeCartBtn) {
+            closeCartBtn.addEventListener('click', function(e) {
+                console.log('Botão fechar clicado');
+                e.preventDefault();
+                closeCart();
+            });
+        }
+
+        if (cartOverlay) {
+            cartOverlay.addEventListener('click', closeCart);
+        }
+
+        // Fechar com ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeCart();
+            }
+        });
+
+        // Funções para gerenciar carrinho
+        function updateQuantity(productId, change) {
+            const quantityInput = document.querySelector(`[data-product-id="${productId}"] input[name="quantity"]`);
+            let currentQty = parseInt(quantityInput.value);
+            let newQty = currentQty + change;
+            
+            if (newQty < 1) newQty = 1;
+            if (newQty > 99) newQty = 99;
+            
+            quantityInput.value = newQty;
+            
+            // Submit the form
+            const form = quantityInput.closest('form');
+            form.submit();
+        }
+        
+        function removeFromCart(productId) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/carrinho/remover/${productId}`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        // Auto-abrir carrinho quando item é adicionado (opcional)
+        // Adicione uma query string para abrir automaticamente
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('cart') === 'open') {
+            console.log('Abrindo carrinho automaticamente...');
+            openCart();
+            // Remove o parâmetro da URL sem recarregar
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    </script>
 </body>
 </html>

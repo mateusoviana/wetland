@@ -45,17 +45,15 @@
 
             <!-- Navegação direita -->
             <div class="flex items-center gap-4">
-                <!-- Botão do carrinho (apenas na página inicial) -->
-                {% if request.endpoint == 'index' %}
+                <!-- Botão do carrinho (agora em todas as páginas) -->
                 <button id="cartToggle" class="relative bg-emerald-600 text-white p-3 rounded-full hover:bg-emerald-700 transition duration-200 shadow-lg">
                     <i class="fas fa-shopping-cart text-xl"></i>
                     {% if cart_items and cart_items|length > 0 %}
                     <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
-                        {{ cart_items|length }}
+                        {{ cart_items|sum(attribute='quantity') }}
                     </span>
                     {% endif %}
                 </button>
-                {% endif %}
                 
                 <!-- Conta -->
                 <a href="{{ url_for('account') }}" class="text-3xl text-emerald-800 hover:text-emerald-600 transition duration-200" title="Minha Conta">
@@ -79,11 +77,10 @@
             {% block content %}{% endblock %}
         </main>
         
-        {% if request.endpoint == 'index' %}
-        <!-- Overlay escuro quando carrinho está aberto -->
+        <!-- Overlay escuro quando carrinho está aberto (agora em todas as páginas) -->
         <div id="cartOverlay" class="cart-overlay hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
         
-        <!-- Carrinho lateral retrátil -->
+        <!-- Carrinho lateral retrátil (agora em todas as páginas) -->
         <aside id="cartSidebar" class="cart-sidebar closed fixed top-0 w-96 h-full bg-white shadow-2xl z-50 border-l border-emerald-100">
             <div class="p-6 h-full flex flex-col">
                 <!-- Cabeçalho do carrinho -->
@@ -160,7 +157,6 @@
                 </div>
             </div>
         </aside>
-        {% endif %}
     </div>
 
     <footer class="text-center text-sm text-emerald-900 py-6 border-t border-emerald-200 max-w-7xl mx-auto">
@@ -180,7 +176,8 @@
         console.log('cartOverlay:', cartOverlay);
         console.log('closeCartBtn:', closeCartBtn);
 
-        function openCart() {
+        // Funções globais para o carrinho
+        window.openCart = function() {
             console.log('Função openCart chamada');
             if (cartSidebar) {
                 console.log('Abrindo carrinho...');
@@ -200,9 +197,9 @@
             }
             
             document.body.style.overflow = 'hidden';
-        }
+        };
 
-        function closeCart() {
+        window.closeCart = function() {
             console.log('Função closeCart chamada');
             if (cartSidebar) {
                 cartSidebar.classList.remove('open');
@@ -214,7 +211,11 @@
                 cartOverlay.style.pointerEvents = 'none';
             }
             document.body.style.overflow = 'auto';
-        }
+        };
+
+        // Aliases para compatibilidade
+        window.openCart = window.openCart;
+        window.closeCart = window.closeCart;
 
         // Event listeners
         if (cartToggle) {
@@ -222,7 +223,7 @@
             cartToggle.addEventListener('click', function(e) {
                 console.log('Botão do carrinho clicado');
                 e.preventDefault();
-                openCart();
+                window.openCart();
             });
         } else {
             console.error('cartToggle não encontrado!');
@@ -232,18 +233,18 @@
             closeCartBtn.addEventListener('click', function(e) {
                 console.log('Botão fechar clicado');
                 e.preventDefault();
-                closeCart();
+                window.closeCart();
             });
         }
 
         if (cartOverlay) {
-            cartOverlay.addEventListener('click', closeCart);
+            cartOverlay.addEventListener('click', window.closeCart);
         }
 
         // Fechar com ESC
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                closeCart();
+                window.closeCart();
             }
         });
 
@@ -271,15 +272,63 @@
             form.submit();
         }
 
-        // Auto-abrir carrinho quando item é adicionado (opcional)
-        // Adicione uma query string para abrir automaticamente
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('cart') === 'open') {
-            console.log('Abrindo carrinho automaticamente...');
-            openCart();
-            // Remove o parâmetro da URL sem recarregar
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
+        // Auto-abrir carrinho quando item é adicionado
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (urlParams.get('cart') === 'open') {
+                console.log('Abrindo carrinho automaticamente...');
+                window.openCart();
+                // Remove o parâmetro da URL sem recarregar
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
+            // Auto-abrir carrinho quando item é adicionado da página de produto
+            if (urlParams.get('added') === 'true') {
+                console.log('Produto adicionado, abrindo carrinho...');
+                window.openCart();
+                // Remove o parâmetro da URL sem recarregar
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            // Auto-abrir carrinho quando item é adicionado (novo parâmetro)
+            if (urlParams.get('cart_added') === 'true') {
+                console.log('Produto adicionado via AJAX, abrindo carrinho...');
+                window.openCart();
+                // Remove o parâmetro da URL sem recarregar
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+
+        // Função global para recarregar a página quando necessário (para atualizar o carrinho)
+        window.reloadCartData = function() {
+            // Recarrega a página para atualizar os dados do carrinho
+            window.location.reload();
+        };
+
+        // Detectar quando o usuário volta para a página (para atualizar o carrinho)
+        window.addEventListener('pageshow', function(event) {
+            // Se a página foi carregada do cache (usuário voltou), recarregar para atualizar carrinho
+            if (event.persisted) {
+                console.log('Página carregada do cache, recarregando para atualizar carrinho...');
+                window.location.reload();
+            }
+        });
+
+        // Detectar mudanças de visibilidade da página
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                // Página se tornou visível novamente
+                console.log('Página se tornou visível novamente');
+                // Opcional: recarregar após um delay para atualizar dados
+                setTimeout(function() {
+                    if (performance.navigation.type === 2) {
+                        // Usuário voltou usando botão voltar
+                        window.location.reload();
+                    }
+                }, 100);
+            }
+        });
     </script>
 </body>
 </html>

@@ -317,25 +317,34 @@ def add_to_cart_route(product_id):
     if not product:
         abort(404)
     
-    quantity = int(request.form.get('quantity', 1))
+    # Verificar se é requisição AJAX
+    if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        data = request.get_json()
+        quantity = int(data.get('quantity', 1))
+    else:
+        quantity = int(request.form.get('quantity', 1))
+    
     add_to_cart(product_id, quantity)
     
-    # Retorna JSON para requisições AJAX ou redireciona
-    if request.is_json or request.headers.get('Content-Type') == 'application/json':
+    # Retorna JSON para requisições AJAX
+    if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         cart_items, cart_total = get_cart_items()
+        # Calcular quantidade total de itens (não apenas tipos diferentes)
+        total_items = sum(item['quantity'] for item in cart_items)
         return jsonify({
             'success': True,
             'message': f'{product.name} adicionado ao carrinho!',
-            'cart_count': len(cart_items),
-            'cart_total': cart_total
+            'cart_count': total_items,
+            'cart_total': cart_total,
+            'items_count': len(cart_items)  # Tipos diferentes de produtos
         })
     
-    # Se foi chamado da página inicial, redireciona com parâmetro para abrir carrinho
+    # Redireciona com parâmetro para abrir carrinho (fallback para formulários tradicionais)
     referrer = request.referrer or url_for('index')
-    if 'produto' not in referrer:  # Se não veio da página de produto individual
+    if 'produto' in referrer:  # Se veio da página de produto individual
+        return redirect(url_for('product_page', product_id=product_id) + '?added=true')
+    else:  # Se veio da página inicial
         return redirect(url_for('index') + '?cart=open')
-    
-    return redirect(referrer)
 
 @app.route('/carrinho/remover/<int:product_id>', methods=['POST'])
 def remove_from_cart_route(product_id):

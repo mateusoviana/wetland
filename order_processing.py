@@ -1,11 +1,10 @@
-# order_processing.py
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import List, Optional
 from notification_system import event_manager
 
 
-# --- Padrão State: Gerenciamento do Status do Pedido ---
+# --- State Pattern: Order Status Management ---
 class OrderState(ABC):
     """Define a interface para todos os estados de um pedido."""
 
@@ -54,7 +53,7 @@ class DeliveredState(OrderState):
         return "Delivered"
 
 
-# --- Objeto Principal: Pedido (Order) ---
+# --- Main Object: Order ---
 class Order:
     def __init__(self, order_id: int, products: List[str], total_price: float):
         self.id = order_id
@@ -94,7 +93,7 @@ class Order:
         return f"Order(id={self.id}, status='{self.status}', products={self.products}, total={self.total_price})"
 
 
-# --- Padrão Builder: Construção do Pedido ---
+# --- Builder Pattern: Order Builder ---
 class OrderBuilder:
     """Construtor para criar um objeto Order de forma segura."""
 

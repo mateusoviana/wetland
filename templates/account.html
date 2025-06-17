@@ -18,7 +18,7 @@
         <div class="space-y-4">
             {% if orders %}
                 {% for order in orders %}
-                <div class="bg-white border border-emerald-100 rounded-lg p-5 shadow-sm">
+                <a href="{{ url_for('view_order', order_id=order.id) }}" class="block bg-white border border-emerald-100 rounded-lg p-5 shadow-sm hover:bg-emerald-50 transition">
                     <h3 class="text-lg font-bold text-emerald-800 mb-2">Pedido #{{ order.id }}</h3>
                     <div class="flex justify-between text-sm text-gray-600 mb-2">
                         <span class="font-medium capitalize status-{{ order.status.lower() }}">{{ order.status }}</span>
@@ -29,7 +29,7 @@
                             <li>{{ product_name }}</li>
                         {% endfor %}
                     </ul>
-                </div>
+                </a>
                 {% endfor %}
             {% else %}
                 <p class="text-gray-500">Você ainda não tem pedidos.</p>

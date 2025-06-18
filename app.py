@@ -10,6 +10,7 @@ from order_processing import OrderBuilder, Order
 from shipping_calculator import ShippingContext, SedexStrategy, PacStrategy, LocalPickupStrategy
 from user_management import UserFactory, User
 
+
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)  # Chave secreta para sessões
 

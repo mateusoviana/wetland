@@ -63,7 +63,6 @@ class EmailNotifier(Observer):
 # Instância global do gerenciador de eventos para ser usado na aplicação
 event_manager = Subject()
 
-# Registrar observadores automaticamente
 email_notifier = EmailNotifier()
 
 # Inscrever observadores nos eventos

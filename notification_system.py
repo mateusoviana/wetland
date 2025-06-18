@@ -59,32 +59,11 @@ class EmailNotifier(Observer):
         except Exception as e:
             print(f"❌ Erro no EmailNotifier: {e}")
 
-class SMSNotifier(Observer):
-    """Notificador por SMS (simulado)."""
-    
-    def update(self, event_type: str, data: any):
-        """Simula envio de SMS."""
-        if event_type == "order_created":
-            order_id = data.get('order_id', 'N/A')
-            print(f"📱 SMS: Pedido #{order_id} confirmado! Você receberá atualizações por email.")
-            
-        elif event_type == "order_status_changed":
-            order_id = data.get('order_id', 'N/A')
-            status = data.get('status', 'N/A')
-            print(f"📱 SMS: Pedido #{order_id} - Status: {status}")
-            
-        else:
-            print(f"📱 SMS: Evento '{event_type}' ocorreu. Dados: {data}")
-
 # Instância global do gerenciador de eventos para ser usado na aplicação
 event_manager = Subject()
 
-# Registrar observadores automaticamente
 email_notifier = EmailNotifier()
-sms_notifier = SMSNotifier()
 
 # Inscrever observadores nos eventos
 event_manager.subscribe("order_created", email_notifier)
 event_manager.subscribe("order_status_changed", email_notifier)
-event_manager.subscribe("order_created", sms_notifier)
-event_manager.subscribe("order_status_changed", sms_notifier)

@@ -11,6 +11,7 @@ from shipping_calculator import ShippingContext, SedexStrategy, PacStrategy, Loc
 from notification_system import event_manager, EmailNotifier, SMSNotifier
 from user_management import UserFactory, User
 
+
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)  # Chave secreta para sessões
 

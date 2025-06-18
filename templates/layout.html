@@ -7,13 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
         }
         .cart-sidebar {
             transition: transform 0.3s ease-in-out;
-            right: -384px; /* Esconde completamente (largura w-96 = 384px) */
+            right: -384px;
         }
         .cart-sidebar.closed {
             transform: translateX(0);
@@ -23,8 +24,7 @@
             transform: translateX(0);
             right: 0;
         }
-        
-        /* Garantir que o overlay funcione */
+
         .cart-overlay {
             transition: opacity 0.3s ease-in-out;
         }
@@ -35,28 +35,27 @@
     </style>
 </head>
 <body class="bg-emerald-50 text-gray-800">
-    <header class="bg-white shadow-sm border-b border-emerald-100">
+    <header class="hero-gradient shadow-lg border-b border-emerald-300">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <!-- Logo -->
             <a href="{{ url_for('index') }}" class="flex items-center gap-3">
                 <img src="{{ url_for('static', filename='images/logo2.png') }}" alt="Logo Wetland" class="h-12 w-auto">
-                <span class="text-3xl font-semibold text-emerald-900 uppercase tracking-widest">Wetland</span>
+                <span class="text-3xl font-semibold text-white uppercase tracking-widest">Wetland</span>
             </a>
 
-            <!-- Navegação direita -->
+            <!-- Enhanced navigation -->
             <div class="flex items-center gap-4">
-                <!-- Botão do carrinho (agora em todas as páginas) -->
-                <button id="cartToggle" class="relative bg-emerald-600 text-white p-3 rounded-full hover:bg-emerald-700 transition duration-200 shadow-lg">
+                <!-- Cart button with enhanced styling -->
+                <button id="cartToggle" class="relative bg-white bg-opacity-20 text-white p-3 rounded-full hover:bg-opacity-30 transition duration-300 shadow-lg floating transform hover:scale-105">
                     <i class="fas fa-shopping-cart text-xl"></i>
                     {% if cart_items and cart_items|length > 0 %}
-                    <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+                    <span id="cartBadge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold animate-pulse">
                         {{ cart_items|sum(attribute='quantity') }}
                     </span>
                     {% endif %}
                 </button>
-                
-                <!-- Conta -->
-                <a href="{{ url_for('account') }}" class="text-3xl text-emerald-800 hover:text-emerald-600 transition duration-200" title="Minha Conta">
+
+                <!-- Account button with enhanced styling -->
+                <a href="{{ url_for('account') }}" class="text-3xl text-white hover:text-emerald-200 transition duration-300 transform hover:scale-110" title="Minha Conta">
                     <i class="fas fa-user-circle"></i>
                 </a>
             </div>
@@ -65,44 +64,41 @@
 
     {% if request.endpoint != 'index' %}
     <div class="max-w-7xl mx-auto px-1 py-2 text-left">
-        <button onclick="window.history.back()" class="w-12 h-12 bg-emerald-800 text-white rounded-full flex items-center justify-center transition duration-200 hover:bg-emerald-700">
+        <button onclick="window.history.back()" class="w-12 h-12 hero-gradient text-white rounded-full flex items-center justify-center transition duration-300 hover:shadow-lg transform hover:scale-105">
             <i class="fas fa-arrow-left"></i>
         </button>
     </div>
     {% endif %}
 
-    <!-- Layout principal -->
     <div class="relative">
-        <main class="{% if request.endpoint == 'index' %}max-w-7xl{% else %}max-w-6xl{% endif %} mx-auto p-6">
+        <main class="{% if request.endpoint == 'index' %}max-w-7xl{% else %}max-w-6xl{% endif %} mx-auto p-6 relative z-10">
             {% block content %}{% endblock %}
         </main>
-        
-        <!-- Overlay escuro quando carrinho está aberto (agora em todas as páginas) -->
+
         <div id="cartOverlay" class="cart-overlay hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
         
-        <!-- Carrinho lateral retrátil (agora em todas as páginas) -->
+
         <aside id="cartSidebar" class="cart-sidebar closed fixed top-0 w-96 h-full bg-white shadow-2xl z-50 border-l border-emerald-100">
             <div class="p-6 h-full flex flex-col">
-                <!-- Cabeçalho do carrinho -->
-                <div class="flex items-center justify-between border-b border-emerald-100 pb-4 mb-4">
-                    <h3 class="text-xl font-semibold text-emerald-800 flex items-center gap-2">
+                <div class="flex items-center justify-between border-b border-emerald-100 pb-4 mb-4 hero-gradient text-white p-4 rounded-lg -m-6 mb-4">
+                    <h3 class="text-xl font-semibold flex items-center gap-2">
                         <i class="fas fa-shopping-cart"></i>
                         Meu Carrinho
                     </h3>
-                    <button id="closeCart" class="text-gray-500 hover:text-gray-700 text-xl">
+                    <button id="closeCart" class="text-white hover:text-emerald-200 text-xl transition duration-200">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
                 
-                <!-- Conteúdo do carrinho -->
+                <!-- Cart content -->
                 <div class="flex-1 overflow-hidden flex flex-col">
                     {% if cart_items and cart_items|length > 0 %}
-                        <!-- Lista de itens -->
+                        <!-- Enhanced items list -->
                         <div class="flex-1 overflow-y-auto space-y-4 mb-4">
                             {% for item in cart_items %}
-                            <div class="relative border border-gray-200 rounded-lg p-4 bg-emerald-50" data-product-id="{{ item.product.id }}">
+                            <div class="relative border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-emerald-50 to-white shadow-sm hover:shadow-md transition duration-200" data-product-id="{{ item.product.id }}">
                                 <div class="flex gap-4">
-                                    <div class="w-20 h-20 bg-white rounded-md overflow-hidden flex items-center justify-center border">
+                                    <div class="w-20 h-20 bg-white rounded-md overflow-hidden flex items-center justify-center border shadow-sm">
                                         <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="w-full h-full object-contain">
                                     </div>
                                     <div class="flex-1 min-w-0">
@@ -110,33 +106,33 @@
                                         <div class="text-emerald-600 font-bold mb-2">R$ {{ "%.2f"|format(item.product.price) }}</div>
                                         <div class="flex items-center gap-2 mb-2">
                                             <form action="{{ url_for('update_cart_route', product_id=item.product.id) }}" method="post" class="flex items-center gap-2">
-                                                <button type="button" onclick="updateQuantity('{{ item.product.id }}', -1)" class="w-8 h-8 bg-emerald-600 text-white rounded hover:bg-emerald-700 flex items-center justify-center">-</button>
-                                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="99" class="w-16 text-center text-sm border border-gray-300 rounded">
-                                                <button type="button" onclick="updateQuantity('{{ item.product.id }}', 1)" class="w-8 h-8 bg-emerald-600 text-white rounded hover:bg-emerald-700 flex items-center justify-center">+</button>
+                                                <button type="button" onclick="updateQuantity('{{ item.product.id }}', -1)" class="w-8 h-8 hero-gradient text-white rounded hover:shadow-md transition duration-200 flex items-center justify-center">-</button>
+                                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="99" class="w-16 text-center text-sm border border-gray-300 rounded shadow-sm">
+                                                <button type="button" onclick="updateQuantity('{{ item.product.id }}', 1)" class="w-8 h-8 hero-gradient text-white rounded hover:shadow-md transition duration-200 flex items-center justify-center">+</button>
                                             </form>
                                         </div>
                                         <div class="text-sm text-gray-600">Total: R$ {{ "%.2f"|format(item.item_total) }}</div>
                                     </div>
                                 </div>
-                                <button onclick="removeFromCart('{{ item.product.id }}')" class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 flex items-center justify-center" title="Remover item">×</button>
+                                <button onclick="removeFromCart('{{ item.product.id }}')" class="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 transition duration-200 flex items-center justify-center transform hover:scale-110" title="Remover item">×</button>
                             </div>
                             {% endfor %}
                         </div>
                         
-                        <!-- Resumo e ações -->
+                        <!-- Enhanced summary and actions -->
                         <div class="border-t border-emerald-100 pt-4 space-y-4">
-                            <div class="text-center">
-                                <div class="text-2xl font-bold text-emerald-800">Total: R$ {{ "%.2f"|format(cart_total) if cart_total else "0.00" }}</div>
+                            <div class="text-center hero-gradient text-white p-4 rounded-lg">
+                                <div class="text-2xl font-bold">Total: R$ {{ "%.2f"|format(cart_total) if cart_total else "0.00" }}</div>
                             </div>
                             <div class="space-y-3">
                                 <form action="{{ url_for('checkout') }}" method="post">
-                                    <button type="submit" class="w-full bg-emerald-600 text-white py-3 px-4 rounded-lg hover:bg-emerald-700 transition duration-200 font-medium text-lg">
+                                    <button type="submit" class="w-full hero-gradient text-white py-3 px-4 rounded-lg hover:shadow-lg transition duration-300 font-medium text-lg transform hover:scale-105">
                                         <i class="fas fa-credit-card mr-2"></i>
                                         Finalizar Compra
                                     </button>
                                 </form>
                                 <form action="{{ url_for('clear_cart_route') }}" method="post">
-                                    <button type="submit" class="w-full bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200">
+                                    <button type="submit" class="w-full bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200 hover:shadow-md">
                                         <i class="fas fa-trash mr-2"></i>
                                         Limpar Carrinho
                                     </button>
@@ -144,12 +140,12 @@
                             </div>
                         </div>
                     {% else %}
-                        <!-- Carrinho vazio -->
+                        <!-- Enhanced empty cart -->
                         <div class="flex-1 flex flex-col items-center justify-center text-center text-gray-500">
-                            <i class="fas fa-shopping-cart text-6xl mb-4 text-gray-300"></i>
+                            <i class="fas fa-shopping-cart text-6xl mb-4 text-gray-300 floating"></i>
                             <h4 class="text-xl font-medium mb-2">Seu carrinho está vazio</h4>
                             <p class="text-sm mb-4">Adicione produtos para começar suas compras!</p>
-                            <button onclick="closeCart()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700 transition duration-200">
+                            <button onclick="closeCart()" class="hero-gradient text-white px-6 py-2 rounded-lg hover:shadow-lg transition duration-300 transform hover:scale-105">
                                 Continuar Comprando
                             </button>
                         </div>
@@ -159,48 +155,37 @@
         </aside>
     </div>
 
-    <footer class="text-center text-sm text-emerald-900 py-6 border-t border-emerald-200 max-w-7xl mx-auto">
-        Projeto 2 - CSI22 | ITA
+    <!-- Enhanced footer -->
+    <footer class="text-center text-sm text-emerald-900 py-6 border-t border-emerald-200 max-w-7xl mx-auto hero-gradient text-white rounded-t-lg mt-8">
+        <div class="floating">
+            A loja mais completa do H8!
+        </div>
     </footer>
 
     <script>
-        // Controle do carrinho retrátil
+        // Enhanced cart control with animations
         const cartToggle = document.getElementById('cartToggle');
         const cartSidebar = document.getElementById('cartSidebar');
         const cartOverlay = document.getElementById('cartOverlay');
         const closeCartBtn = document.getElementById('closeCart');
 
-        console.log('Elementos encontrados:');
-        console.log('cartToggle:', cartToggle);
-        console.log('cartSidebar:', cartSidebar);
-        console.log('cartOverlay:', cartOverlay);
-        console.log('closeCartBtn:', closeCartBtn);
-
-        // Funções globais para o carrinho
+        // Global cart functions with enhanced effects
         window.openCart = function() {
-            console.log('Função openCart chamada');
             if (cartSidebar) {
-                console.log('Abrindo carrinho...');
                 cartSidebar.classList.remove('closed');
                 cartSidebar.classList.add('open');
-                console.log('Classes do carrinho:', cartSidebar.className);
-            } else {
-                console.error('cartSidebar não encontrado!');
             }
             
             if (cartOverlay) {
                 cartOverlay.classList.remove('hidden');
                 cartOverlay.style.opacity = '1';
                 cartOverlay.style.pointerEvents = 'auto';
-            } else {
-                console.error('cartOverlay não encontrado!');
             }
             
             document.body.style.overflow = 'hidden';
         };
 
         window.closeCart = function() {
-            console.log('Função closeCart chamada');
             if (cartSidebar) {
                 cartSidebar.classList.remove('open');
                 cartSidebar.classList.add('closed');
@@ -213,25 +198,16 @@
             document.body.style.overflow = 'auto';
         };
 
-        // Aliases para compatibilidade
-        window.openCart = window.openCart;
-        window.closeCart = window.closeCart;
-
         // Event listeners
         if (cartToggle) {
-            console.log('Adicionando event listener ao cartToggle');
             cartToggle.addEventListener('click', function(e) {
-                console.log('Botão do carrinho clicado');
                 e.preventDefault();
                 window.openCart();
             });
-        } else {
-            console.error('cartToggle não encontrado!');
         }
 
         if (closeCartBtn) {
             closeCartBtn.addEventListener('click', function(e) {
-                console.log('Botão fechar clicado');
                 e.preventDefault();
                 window.closeCart();
             });
@@ -241,14 +217,14 @@
             cartOverlay.addEventListener('click', window.closeCart);
         }
 
-        // Fechar com ESC
+        // Close with ESC
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 window.closeCart();
             }
         });
 
-        // Funções para gerenciar carrinho
+        // Cart management functions
         function updateQuantity(productId, change) {
             const quantityInput = document.querySelector(`[data-product-id="${productId}"] input[name="quantity"]`);
             let currentQty = parseInt(quantityInput.value);
@@ -259,7 +235,6 @@
             
             quantityInput.value = newQty;
             
-            // Submit the form
             const form = quantityInput.closest('form');
             form.submit();
         }
@@ -272,58 +247,27 @@
             form.submit();
         }
 
-        // Auto-abrir carrinho quando item é adicionado
+        // Auto-open cart functionality
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             
-            if (urlParams.get('cart') === 'open') {
-                console.log('Abrindo carrinho automaticamente...');
+            if (urlParams.get('cart') === 'open' || urlParams.get('added') === 'true' || urlParams.get('cart_added') === 'true') {
                 window.openCart();
-                // Remove o parâmetro da URL sem recarregar
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-            
-            // Auto-abrir carrinho quando item é adicionado da página de produto
-            if (urlParams.get('added') === 'true') {
-                console.log('Produto adicionado, abrindo carrinho...');
-                window.openCart();
-                // Remove o parâmetro da URL sem recarregar
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-
-            // Auto-abrir carrinho quando item é adicionado (novo parâmetro)
-            if (urlParams.get('cart_added') === 'true') {
-                console.log('Produto adicionado via AJAX, abrindo carrinho...');
-                window.openCart();
-                // Remove o parâmetro da URL sem recarregar
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         });
 
-        // Função global para recarregar a página quando necessário (para atualizar o carrinho)
-        window.reloadCartData = function() {
-            // Recarrega a página para atualizar os dados do carrinho
-            window.location.reload();
-        };
-
-        // Detectar quando o usuário volta para a página (para atualizar o carrinho)
+        // Page visibility handling
         window.addEventListener('pageshow', function(event) {
-            // Se a página foi carregada do cache (usuário voltou), recarregar para atualizar carrinho
             if (event.persisted) {
-                console.log('Página carregada do cache, recarregando para atualizar carrinho...');
                 window.location.reload();
             }
         });
 
-        // Detectar mudanças de visibilidade da página
         document.addEventListener('visibilitychange', function() {
             if (!document.hidden) {
-                // Página se tornou visível novamente
-                console.log('Página se tornou visível novamente');
-                // Opcional: recarregar após um delay para atualizar dados
                 setTimeout(function() {
                     if (performance.navigation.type === 2) {
-                        // Usuário voltou usando botão voltar
                         window.location.reload();
                     }
                 }, 100);

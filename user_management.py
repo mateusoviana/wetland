@@ -19,11 +19,6 @@ class Seller(User):
     def get_permissions(self):
         return ["MANAGE_PRODUCTS", "VIEW_SALES", "MANAGE_COUPONS"]
 
-class Admin(User):
-    """Representa um administrador do sistema."""
-    def get_permissions(self):
-        return ["MANAGE_USERS", "VIEW_REPORTS", "MANAGE_PLATFORM"]
-
 # --- Fábrica (Factory) ---
 class UserFactory:
     """Fábrica para criar objetos de usuário."""
@@ -33,6 +28,4 @@ class UserFactory:
             return Customer()
         elif user_type.lower() == "seller":
             return Seller()
-        elif user_type.lower() == "admin":
-            return Admin()
         raise ValueError(f"Tipo de usuário desconhecido: {user_type}")

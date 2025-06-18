@@ -1,3 +1,4 @@
+
 {% extends "layout.html" %}
 
 {% block content %}
@@ -10,79 +11,85 @@
 </div>
 
 <section class="max-w-5xl mx-auto py-10 px-4">
-  <div class="flex flex-col md:flex-row gap-10 items-start bg-white rounded-lg shadow-lg p-6">
+  <div class="flex flex-col md:flex-row gap-6 items-start bg-white rounded-lg shadow-lg p-6">
     <!-- Imagem do produto -->
     <div class="w-full md:w-[400px] h-[400px] flex items-center justify-center bg-white rounded-lg shadow-sm border border-emerald-100">
       <img src="{{ product.image_url }}" alt="{{ product.name }}" class="max-w-full max-h-full object-contain" />
     </div>
-    
+
     <!-- Informações do produto -->
-    <div class="flex-1 flex flex-col justify-start h-[400px] space-y-6">
-      <!-- Título e descrição -->
-      <div class="text-center md:text-left">
-        <h1 class="text-3xl font-bold text-emerald-800 mb-4">{{ product.name }}</h1>
-        <p class="text-gray-700 text-lg mb-4">{{ product.description }}</p>
-        <p class="text-md text-gray-600 mb-4">
-          <strong>Vendido por:</strong> 
-          <span class="text-emerald-700">{{ product.seller }}</span>
-        </p>
-      </div>
-      
-      <!-- Preço e estoque -->
-      <div class="text-center md:text-left">
-        <p class="text-4xl font-bold text-emerald-700 mb-4">R$ {{ "%.2f"|format(product.price) }}</p>
-        
-        <div class="mb-6">
-          {% if product.stock > 0 %}
-            <div class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-              <i class="fas fa-check-circle mr-2"></i>
-              {{ product.stock }} unidades em estoque
-            </div>
-          {% else %}
-            <div class="inline-flex items-center px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
-              <i class="fas fa-times-circle mr-2"></i>
-              Produto indisponível
-            </div>
-          {% endif %}
+    <div class="flex-1 flex flex-col h-[400px]">
+      <!-- Conteúdo superior compacto -->
+      <div class="space-y-4 mb-6">
+        <!-- Título e descrição -->
+        <div class="text-center md:text-left">
+          <h1 class="text-2xl md:text-3xl font-bold text-emerald-800 mb-3">{{ product.name }}</h1>
+          <p class="text-gray-700 text-base mb-3 line-clamp-2">{{ product.description }}</p>
+          <p class="text-sm text-gray-600 mb-3">
+            <strong>Vendido por:</strong>
+            <span class="text-emerald-700">{{ product.seller }}</span>
+          </p>
         </div>
-      </div>
-      
-      <!-- Ações de compra -->
-      <div class="space-y-4">
-        {% if product.stock > 0 %}
-          <!-- Seletor de quantidade e adicionar ao carrinho -->
-          <div class="space-y-4">
-            <div class="flex items-center gap-4 justify-center md:justify-start">
-              <label for="quantity" class="font-medium text-emerald-800">Quantidade:</label>
+
+        <!-- Preço, estoque e quantidade em linha -->
+        <div class="text-center md:text-left">
+          <p class="text-3xl font-bold text-emerald-700 mb-4">R$ {{ "%.2f"|format(product.price) }}</p>
+
+          <div class="flex flex-col md:flex-row items-start md:items-center gap-4 mb-4">
+            <!-- Estoque -->
+            <div>
+              {% if product.stock > 0 %}
+                <div class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                  <i class="fas fa-check-circle mr-2"></i>
+                  {{ product.stock }} unidades em estoque
+                </div>
+              {% else %}
+                <div class="inline-flex items-center px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+                  <i class="fas fa-times-circle mr-2"></i>
+                  Produto indisponível
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Seletor de quantidade -->
+            {% if product.stock > 0 %}
+            <div class="flex items-center gap-3">
+              <label for="quantity" class="font-medium text-emerald-800 text-sm">Quantidade:</label>
               <div class="flex items-center border border-gray-300 rounded-lg">
-                <button type="button" onclick="decreaseQty()" class="px-3 py-2 text-emerald-600 hover:bg-emerald-50">-</button>
-                <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}" 
-                       class="w-16 text-center py-2 border-none focus:ring-0">
-                <button type="button" onclick="increaseQty()" class="px-3 py-2 text-emerald-600 hover:bg-emerald-50">+</button>
+                <button type="button" onclick="decreaseQty()" class="px-2 py-1 text-emerald-600 hover:bg-emerald-50">-</button>
+                <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}"
+                       class="w-12 text-center py-1 border-none focus:ring-0 text-sm">
+                <button type="button" onclick="increaseQty()" class="px-2 py-1 text-emerald-600 hover:bg-emerald-50">+</button>
               </div>
             </div>
-            
-            <button onclick="addToCartAjax()" id="addToCartBtn" class="w-full bg-emerald-600 text-white py-3 px-6 rounded-lg hover:bg-emerald-700 transition duration-200 font-medium text-lg">
-              🛒 Adicionar ao Carrinho
-            </button>
+            {% endif %}
           </div>
-          
+        </div>
+      </div>
+
+      <!-- Ações de compra com botões grandes -->
+      <div class="flex-1 flex flex-col justify-center space-y-4">
+        {% if product.stock > 0 %}
+          <button onclick="addToCartAjax()" id="addToCartBtn" class="w-full bg-emerald-600 text-white py-4 px-6 rounded-lg hover:bg-emerald-700 transition duration-200 font-medium text-xl">
+            🛒 Adicionar ao Carrinho
+          </button>
+
           <!-- Comprar agora -->
           <form action="{{ url_for('checkout') }}" method="post">
             <input type="hidden" name="direct_buy" value="{{ product.id }}">
-            <button type="submit" class="w-full bg-orange-500 text-white py-3 px-6 rounded-lg hover:bg-orange-600 transition duration-200 font-medium text-lg">
+            <button type="submit" class="w-full bg-orange-500 text-white py-4 px-6 rounded-lg hover:bg-orange-600 transition duration-200 font-medium text-xl">
               ⚡ Comprar Agora
             </button>
           </form>
         {% else %}
-          <button disabled class="w-full bg-gray-400 text-white py-3 px-6 rounded-lg cursor-not-allowed font-medium text-lg">
+          <button disabled class="w-full bg-gray-400 text-white py-4 px-6 rounded-lg cursor-not-allowed font-medium text-xl">
             Produto Indisponível
           </button>
         {% endif %}
       </div>
     </div>
   </div>
-  
+
   <!-- Especificações do produto -->
   <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
     <h3 class="text-2xl font-bold text-emerald-800 mb-4">Especificações</h3>
@@ -108,10 +115,10 @@
 </section>
 
 <!-- Hidden data for JavaScript -->
-<div id="productData" style="display: none;" 
-     data-id="{{ product.id }}" 
-     data-name="{{ product.name }}" 
-     data-price="{{ product.price }}" 
+<div id="productData" style="display: none;"
+     data-id="{{ product.id }}"
+     data-name="{{ product.name }}"
+     data-price="{{ product.price }}"
      data-stock="{{ product.stock }}"></div>
 
 <script>
@@ -136,9 +143,9 @@ function showSuccessMessage(message) {
     const successDiv = document.getElementById('successMessage');
     const messageSpan = successDiv.querySelector('span');
     messageSpan.textContent = message;
-    
+
     successDiv.classList.remove('hidden');
-    
+
     setTimeout(function() {
         successDiv.classList.add('hidden');
     }, 3000);
@@ -150,28 +157,28 @@ function addToCartAjax() {
     const quantity = parseInt(quantityInput.value);
     const productData = document.getElementById('productData');
     const productId = productData.getAttribute('data-id');
-    
+
     const originalText = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Adicionando...';
     btn.disabled = true;
-    
+
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/carrinho/adicionar/' + productId, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    
+
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
             btn.innerHTML = originalText;
             btn.disabled = false;
-            
+
             if (xhr.status === 200) {
                 try {
                     const data = JSON.parse(xhr.responseText);
                     if (data.success) {
                         showSuccessMessage(data.message);
                         updateCartBadge(data.cart_count);
-                        
+
                         // Aguardar um pouco e então abrir o carrinho
                         setTimeout(function() {
                             // Tentar diferentes formas de abrir o carrinho
@@ -196,7 +203,7 @@ function addToCartAjax() {
             }
         }
     };
-    
+
     xhr.send(JSON.stringify({
         quantity: quantity
     }));
@@ -227,9 +234,9 @@ function showErrorMessage(message) {
     const errorDiv = document.createElement('div');
     errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
     errorDiv.innerHTML = '<div class="flex items-center gap-2"><i class="fas fa-exclamation-circle"></i><span>' + message + '</span></div>';
-    
+
     document.body.appendChild(errorDiv);
-    
+
     setTimeout(function() {
         errorDiv.remove();
     }, 3000);
@@ -238,27 +245,16 @@ function showErrorMessage(message) {
 // Verificar parâmetros da URL
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
-    
+
     // Se veio de um redirect com cart_added=true, abrir o carrinho
     if (urlParams.get('cart_added') === 'true') {
-        showSuccessMessage('Produto adicionado ao carrinho com sucesso!');
-        // Limpar URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-        
-        // Tentar abrir o carrinho
         setTimeout(function() {
             if (window.openCart) {
                 window.openCart();
             } else if (typeof openCart === 'function') {
                 openCart();
             }
-        }, 100);
-    }
-    
-    // Fallback para parâmetro added=true
-    if (urlParams.get('added') === 'true') {
-        showSuccessMessage('Produto adicionado ao carrinho com sucesso!');
-        window.history.replaceState({}, document.title, window.location.pathname);
+        }, 1000);
     }
 });
 </script>

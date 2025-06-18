@@ -37,6 +37,16 @@
                 <strong>Membro desde:</strong> 
                 <span>{{ user.created_at }}</span>
             </div>
+            {% if permissions %}
+            <div class="detail-item">
+                <strong>Permissões (Factory Method):</strong>
+                <div class="permissions-list">
+                    {% for permission in permissions %}
+                    <span class="badge badge-info mr-1 mb-1">{{ permission }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 

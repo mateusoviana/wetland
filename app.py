@@ -6,8 +6,11 @@ import os
 from datetime import datetime
 
 # Importa toda a lógica de negócio que já criamos
-from order_processing import OrderBuilder
+from order_processing import OrderBuilder, Order
 from shipping_calculator import ShippingContext, SedexStrategy, PacStrategy, LocalPickupStrategy
+from notification_system import event_manager, EmailNotifier, SMSNotifier
+from user_management import UserFactory, User
+
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)  # Chave secreta para sessões
@@ -37,6 +40,34 @@ class UserProfile:
     address: str
     user_type: str  # 'customer' ou 'seller'
     created_at: str
+    _user_object: User = None  # Objeto criado pelo Factory Method
+    
+    def __post_init__(self):
+        """Cria o objeto User usando o Factory Method após a inicialização"""
+        if self._user_object is None:
+            self._user_object = UserFactory.create_user(self.user_type)
+    
+    def get_permissions(self):
+        """Retorna as permissões do usuário usando o Factory Method"""
+        if self._user_object is None:
+            self._user_object = UserFactory.create_user(self.user_type)
+        return self._user_object.get_permissions()
+    
+    def has_permission(self, permission: str) -> bool:
+        """Verifica se o usuário tem uma permissão específica"""
+        return permission in self.get_permissions()
+    
+    def can_manage_products(self) -> bool:
+        """Verifica se o usuário pode gerenciar produtos"""
+        return self.has_permission("MANAGE_PRODUCTS")
+    
+    def can_view_sales(self) -> bool:
+        """Verifica se o usuário pode ver vendas"""
+        return self.has_permission("VIEW_SALES")
+    
+    def can_manage_coupons(self) -> bool:
+        """Verifica se o usuário pode gerenciar cupons"""
+        return self.has_permission("MANAGE_COUPONS")
 
 # Lista de vendedores fictícios
 SELLERS = ["Casd", "DepCult", "AAAITA"]
@@ -85,7 +116,10 @@ def load_users():
                 users_data = json.load(f)
                 USERS_DB = {}
                 for user_id, user_data in users_data.items():
-                    USERS_DB[int(user_id)] = UserProfile(**user_data)
+                    # Remove o campo _user_object se existir (não deve ser serializado)
+                    user_data.pop('_user_object', None)
+                    user_profile = UserProfile(**user_data)
+                    USERS_DB[int(user_id)] = user_profile
         except Exception as e:
             print(f"Erro ao carregar usuários: {e}")
             USERS_DB = {}
@@ -95,7 +129,10 @@ def save_users():
     try:
         users_data = {}
         for user_id, user in USERS_DB.items():
-            users_data[str(user_id)] = asdict(user)
+            user_dict = asdict(user)
+            # Remove o campo _user_object para não serializar
+            user_dict.pop('_user_object', None)
+            users_data[str(user_id)] = user_dict
         
         with open(USERS_FILE, 'w', encoding='utf-8') as f:
             json.dump(users_data, f, indent=2, ensure_ascii=False)
@@ -126,6 +163,24 @@ def require_login(f):
         return f(*args, **kwargs)
     decorated_function.__name__ = f.__name__
     return decorated_function
+
+def require_permission(permission):
+    """Decorator para proteger rotas que precisam de permissão específica"""
+    def decorator(f):
+        def decorated_function(*args, **kwargs):
+            current_user = get_current_user()
+            if not current_user:
+                flash('Você precisa estar logado para acessar esta página.', 'error')
+                return redirect(url_for('login'))
+            
+            if not current_user.has_permission(permission):
+                flash('Você não tem permissão para acessar esta página.', 'error')
+                return redirect(url_for('index'))
+            
+            return f(*args, **kwargs)
+        decorated_function.__name__ = f.__name__
+        return decorated_function
+    return decorator
 
 def get_orders_by_seller(seller_name):
     """Retorna pedidos que contêm produtos de um vendedor específico"""
@@ -162,6 +217,10 @@ def register():
         phone = request.form.get('phone', '').strip()
         address = request.form.get('address', '').strip()
         user_type = request.form.get('user_type', 'customer')
+        
+        # Validar tipo de usuário
+        if user_type not in ['customer', 'seller']:
+            user_type = 'customer'  # Default para customer se inválido
         
         # Validações básicas
         if not all([email, password, first_name, last_name]):
@@ -228,7 +287,14 @@ def login():
         
         if user:
             session['user_id'] = user.id
-            flash(f'Bem-vindo(a) de volta, {user.first_name}!', 'success')
+            # Usar Factory Method para mostrar informações sobre o tipo de usuário
+            permissions = user.get_permissions()
+            user_type_msg = {
+                'customer': 'Cliente',
+                'seller': 'Vendedor'
+            }.get(user.user_type, 'Usuário')
+            
+            flash(f'Bem-vindo(a) de volta, {user.first_name}! Você está logado como {user_type_msg}.', 'success')
             return redirect(url_for('account'))
         else:
             flash('Email ou senha incorretos.', 'error')
@@ -396,15 +462,24 @@ def next_status(order_id):
 def account():
     current_user = get_current_user()
     
-    if current_user.user_type == 'seller':
+    # Usar Factory Method para obter permissões
+    permissions = current_user.get_permissions()
+    
+    if current_user.can_manage_products():
         # Para vendedores, mostrar monitoramento de vendas
         seller_name = f"{current_user.first_name} {current_user.last_name}"
         seller_orders = get_orders_by_seller(seller_name)
-        return render_template('seller_dashboard.html', user=current_user, orders=seller_orders)
+        return render_template('seller_dashboard.html', 
+                             user=current_user, 
+                             orders=seller_orders,
+                             permissions=permissions)
     else:
         # Para clientes, mostrar pedidos do usuário
         user_orders = get_user_orders(current_user.id)
-        return render_template('account.html', user=current_user, orders=user_orders)
+        return render_template('account.html', 
+                             user=current_user, 
+                             orders=user_orders,
+                             permissions=permissions)
 
 @app.route('/produto/<int:product_id>')
 def product_page(product_id):
@@ -417,6 +492,23 @@ def product_page(product_id):
                          product=product,
                          cart_items=cart_items,
                          cart_total=cart_total)
+
+# --- ROTAS PARA VENDEDORES (usando Factory Method) ---
+
+@app.route('/seller/products')
+@require_permission('MANAGE_PRODUCTS')
+def seller_products():
+    """Página para vendedores gerenciarem seus produtos"""
+    current_user = get_current_user()
+    seller_name = f"{current_user.first_name} {current_user.last_name}"
+    
+    # Filtrar produtos do vendedor atual
+    seller_products = [p for p in PRODUCTS_DB.values() if p.seller == seller_name]
+    
+    return render_template('seller_products.html',
+                         current_user=current_user,
+                         products=seller_products,
+                         permissions=current_user.get_permissions())
 
 @app.route('/comprar/<int:product_id>', methods=['POST'])
 @require_login

@@ -7,6 +7,13 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import logging
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+EMAIL_REMENTE = os.environ.get("EMAIL_REMETENTE")
+SENHA_APP = os.environ.get("SENHA_APP")
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -19,8 +26,8 @@ class EmailService:
         # Configurações do Gmail
         self.smtp_server = "smtp.gmail.com"
         self.smtp_port = 465
-        self.email_remetente = "leoaguiar727@gmail.com"
-        self.senha_app = "oylxliozllrciqat"
+        self.email_remetente = EMAIL_REMENTE
+        self.senha_app = SENHA_APP
         self.email_cliente = "leoaguiar727@gmail.com"  # Por enquanto mesmo email
         
     def enviar_email(self, destinatario, assunto, corpo_html, corpo_texto=None):

@@ -23,19 +23,19 @@
 
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
     {% for product in products %}
-    <div class="border rounded-lg shadow hover:shadow-md transition p-4 bg-white relative">
+    <div class="border rounded-lg shadow hover:shadow-md transition p-4 bg-white relative flex flex-col h-full">
         <!-- Link para produto individual (só na imagem e título) -->
         <a href="/produto/{{ product.id }}" class="block text-center space-y-2 hover:text-emerald-700">
             <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-48 object-contain rounded bg-white">
-            <h3 class="text-lg font-semibold text-emerald-800">{{ product.name }}</h3>
+            <h3 class="text-lg font-semibold text-emerald-800 min-h-[3.5rem] flex items-center justify-center">{{ product.name }}</h3>
         </a>
-        
+
         <!-- Informações do produto -->
-        <div class="text-center space-y-2 mt-2">
-            <p class="text-sm text-gray-600">{{ product.description }}</p>
+        <div class="text-center space-y-2 mt-2 flex-grow">
+            <p class="text-sm text-gray-600 min-h-[2.5rem] flex items-center justify-center">{{ product.description }}</p>
             <p class="text-sm text-gray-500"><strong>Vendido por:</strong> {{ product.seller }}</p>
             <p class="text-lg font-bold text-emerald-700">R$ {{ "%.2f"|format(product.price) }}</p>
-            
+
             <!-- Estoque -->
             <div class="text-xs">
                 {% if product.stock > 0 %}
@@ -45,13 +45,13 @@
                 {% endif %}
             </div>
         </div>
-        
+
         <!-- Ações do produto -->
         <div class="mt-4 space-y-2">
             <a href="/produto/{{ product.id }}" class="block w-full px-4 py-2 bg-emerald-800 text-white rounded hover:bg-emerald-900 text-center text-sm">
                 Ver Detalhes
             </a>
-            
+
             {% if product.stock > 0 %}
                 <form action="{{ url_for('add_to_cart_route', product_id=product.id) }}" method="post" class="w-full">
                     <input type="hidden" name="quantity" value="1">

@@ -55,14 +55,7 @@ PRODUCTS_DB = {
 
 ORDERS_DB = {}  # Usaremos para armazenar os pedidos criados
 
-# Configurando o sistema de notificação (Observer)
-# Os prints aparecerão no seu terminal quando os eventos ocorrerem
-email_notifier = EmailNotifier()
-sms_notifier = SMSNotifier()
-event_manager.subscribe("order:created", email_notifier)
-event_manager.subscribe("order:paid", email_notifier)
-event_manager.subscribe("order:paid", sms_notifier)
-event_manager.subscribe("order:shipped", email_notifier)
+# Sistema de notificação (Observer) configurado automaticamente no notification_system.py
 
 
 # --- ROTAS DA APLICAÇÃO WEB ---
@@ -123,7 +116,6 @@ def index():
         cart_items=cart_items,
         cart_total=cart_total
     )
-
 
 
 @app.route('/order/<int:order_id>')

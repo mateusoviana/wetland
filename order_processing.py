@@ -21,7 +21,7 @@ class OrderState(ABC):
 class PendingState(OrderState):
     def next_state(self, order: Order):
         order.set_state(PaidState())
-        event_manager.notify("order:paid", {"order_id": order.id, "status": "Paid"})
+        event_manager.notify("order_status_changed", {"order_id": order.id, "status": "Paid"})
 
     def get_status(self) -> str:
         return "Pending"
@@ -30,7 +30,7 @@ class PendingState(OrderState):
 class PaidState(OrderState):
     def next_state(self, order: Order):
         order.set_state(ShippedState())
-        event_manager.notify("order:shipped", {"order_id": order.id, "status": "Shipped"})
+        event_manager.notify("order_status_changed", {"order_id": order.id, "status": "Shipped"})
 
     def get_status(self) -> str:
         return "Paid"
@@ -39,7 +39,7 @@ class PaidState(OrderState):
 class ShippedState(OrderState):
     def next_state(self, order: Order):
         order.set_state(DeliveredState())
-        event_manager.notify("order:delivered", {"order_id": order.id, "status": "Delivered"})
+        event_manager.notify("order_status_changed", {"order_id": order.id, "status": "Delivered"})
 
     def get_status(self) -> str:
         return "Shipped"
@@ -109,5 +109,5 @@ class OrderBuilder:
             products=self._products,
             total_price=self._total_price
         )
-        event_manager.notify("order:created", {"order_id": order.id, "status": order.status})
+        event_manager.notify("order_created", {"order_id": order.id, "status": order.status})
         return order

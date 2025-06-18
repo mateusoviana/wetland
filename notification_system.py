@@ -1,6 +1,7 @@
 # notification_system.py
 from abc import ABC, abstractmethod
 from typing import List, Dict
+from email_service import email_service
 
 # --- Interfaces Observer e Subject ---
 class Observer(ABC):
@@ -30,12 +31,60 @@ class Subject:
 
 # --- Implementações Concretas de Observadores ---
 class EmailNotifier(Observer):
+    """Notificador por email integrado com o EmailService."""
+    
     def update(self, event_type: str, data: any):
-        print(f"📧 EMAIL: Evento '{event_type}' ocorreu. Dados: {data}")
+        """Processa eventos e envia emails apropriados."""
+        try:
+            if event_type == "order_created":
+                # Enviar email de confirmação de pedido
+                sucesso = email_service.email_pedido_criado(data)
+                if sucesso:
+                    print(f"✅ Email de confirmação enviado para pedido #{data.get('order_id', 'N/A')}")
+                else:
+                    print(f"❌ Falha ao enviar email de confirmação para pedido #{data.get('order_id', 'N/A')}")
+                    
+            elif event_type == "order_status_changed":
+                # Enviar email de atualização de status
+                sucesso = email_service.email_status_atualizado(data)
+                if sucesso:
+                    print(f"✅ Email de status enviado para pedido #{data.get('order_id', 'N/A')} - Status: {data.get('status', 'N/A')}")
+                else:
+                    print(f"❌ Falha ao enviar email de status para pedido #{data.get('order_id', 'N/A')}")
+                    
+            else:
+                # Evento não reconhecido, apenas log
+                print(f"📧 EMAIL: Evento '{event_type}' recebido. Dados: {data}")
+                
+        except Exception as e:
+            print(f"❌ Erro no EmailNotifier: {e}")
 
 class SMSNotifier(Observer):
+    """Notificador por SMS (simulado)."""
+    
     def update(self, event_type: str, data: any):
-        print(f"📱 SMS: Evento '{event_type}' ocorreu. Dados: {data}")
+        """Simula envio de SMS."""
+        if event_type == "order_created":
+            order_id = data.get('order_id', 'N/A')
+            print(f"📱 SMS: Pedido #{order_id} confirmado! Você receberá atualizações por email.")
+            
+        elif event_type == "order_status_changed":
+            order_id = data.get('order_id', 'N/A')
+            status = data.get('status', 'N/A')
+            print(f"📱 SMS: Pedido #{order_id} - Status: {status}")
+            
+        else:
+            print(f"📱 SMS: Evento '{event_type}' ocorreu. Dados: {data}")
 
 # Instância global do gerenciador de eventos para ser usado na aplicação
 event_manager = Subject()
+
+# Registrar observadores automaticamente
+email_notifier = EmailNotifier()
+sms_notifier = SMSNotifier()
+
+# Inscrever observadores nos eventos
+event_manager.subscribe("order_created", email_notifier)
+event_manager.subscribe("order_status_changed", email_notifier)
+event_manager.subscribe("order_created", sms_notifier)
+event_manager.subscribe("order_status_changed", sms_notifier)

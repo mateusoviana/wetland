@@ -24,31 +24,29 @@ class Product:
     stock: int = 10  # Adicionando controle de estoque
 
 # Lista de vendedores fictícios
-SELLERS = ["Loja do Duds", "TechMais", "GamerCenter"]
+SELLERS = ["Casd", "DepCult", "AAAITA"]
 
 # Banco de dados em memória para simulação
 # Em uma aplicação real, isso viria de um banco de dados (ex: PostgreSQL, MySQL)
 PRODUCTS_DB = {
-    # Loja do Duds
-    1: Product(1, "Mouse Gamer Sem Fio", 180.75, "Alta precisão e resposta rápida.", "https://m.media-amazon.com/images/I/61mpMH5TzkL._AC_SL1500_.jpg", SELLERS[0], 30),
-    2: Product(2, "Teclado Mecânico RGB", 350.00, "Switches mecânicos e iluminação customizável.", "https://m.media-amazon.com/images/I/71LZTxxNVxL._AC_SX679_.jpg", SELLERS[0], 15),
-    3: Product(3, "Headset Gamer Redragon Zeus X", 299.90, "Som 7.1 e cancelamento de ruído.", "https://m.media-amazon.com/images/I/61Lm9hBJQhL._AC_UL480_FMwebp_QL65_.jpg", SELLERS[0], 20),
-    4: Product(4, "Monitor LG Ultrawide 34\"", 2100.00, "Alta resolução para produtividade.", "https://m.media-amazon.com/images/I/81wfdDTIjHS.__AC_SY300_SX300_QL70_ML2_.jpg", SELLERS[0], 8),
-    5: Product(5, "Cadeira Gamer ThunderX3", 899.99, "Design ergonômico com apoio lombar.", "https://m.media-amazon.com/images/I/517FV7zibCL._AC_SX679_.jpg", SELLERS[0], 12),
+    # Casd
+    1: Product(1, "Camiseta ITA Ondas", 50.00, "Camisa de qualidade com modelo incluso.", "static/images/casd1.png", SELLERS[0], 30),
+    2: Product(2, "Moletom Think Outside the ITA", 120.00, "Para se aquecer nesse frio.", "static/images/casd2.png", SELLERS[0], 15),
+    3: Product(3, "Camiseta Bruxita", 10.00, "Compra, por favor.", "static/images/casd3.png", SELLERS[0], 100),
+    4: Product(4, "Camiseta ITA Engenharias", 40.00, "Camisa de qualidade com modelo não incluso.", "static/images/casd4.png", SELLERS[0], 30),
+    5: Product(5, "Camiseta Brasão ITA", 60.00, "Mais uma camiseta do ITA.", "static/images/casd5.png", SELLERS[0], 15),
+    6: Product(6, "Garrafa Térmica ITA", 50.00, "Importante se hidratar.", "static/images/casd6.png", SELLERS[0], 20),
+    7: Product(7, "Boné ITA", 50.00, "Para esconder a calvície.", "static/images/casd7.png", SELLERS[0], 30),
 
-    # TechMais
-    6: Product(6, "Livro Design Patterns", 120.50, "Padrões de projeto em software.", "https://m.media-amazon.com/images/I/41l2KFHRcFL._SY445_SX342_.jpg", SELLERS[1], 25),
-    7: Product(7, "HD Externo Seagate 2TB", 479.00, "Armazenamento portátil e confiável.", "https://m.media-amazon.com/images/I/81o5zJ+FcPL._AC_SY300_SX300_.jpg", SELLERS[1], 18),
-    8: Product(8, "Webcam Logitech C920s", 389.00, "Full HD com tampa de privacidade.", "https://m.media-amazon.com/images/I/61SCZyiMSNL.__AC_SX300_SY300_QL70_ML2_.jpg", SELLERS[1], 22),
-    9: Product(9, "Roteador TP-Link AX1800", 349.90, "Wi-Fi 6 de alto desempenho.", "https://m.media-amazon.com/images/I/41QJnIHY48L._AC_SX679_.jpg", SELLERS[1], 14),
-    10: Product(10, "Placa de Vídeo RTX 3060", 2399.90, "Ideal para jogos e criação.", "https://m.media-amazon.com/images/I/71tduSp8ooL._AC_SX679_.jpg", SELLERS[1], 6),
+    # DepCult
+    8: Product(8, "Camiseta ITA Jordan", 50.00, "Michael Jordan, não processe, por favor.", "static/images/depcult1.png", SELLERS[1], 25),
+    9: Product(9, "Camiseta Just Do ITA", 55.00, "Nike, não processe, por favor.", "static/images/depcult2.png", SELLERS[1], 18),
+    10: Product(10, "Camiseta Leis de Maxwell", 70.00, "Bizu para prova de FIS-32.", "static/images/depcult3.png", SELLERS[1], 22),
 
-    # GamerCenter
-    11: Product(11, "Controle Xbox Series", 399.90, "Conexão sem fio e USB-C.", "https://m.media-amazon.com/images/I/61qX3f8v5kL._AC_UL480_FMwebp_QL65_.jpg", SELLERS[2], 16),
-    12: Product(12, "Fonte Corsair 650W", 529.90, "80 Plus Bronze e modular.", "https://m.media-amazon.com/images/I/81j8XMBwIwL._AC_UL480_FMwebp_QL65_.jpg", SELLERS[2], 10),
-    13: Product(13, "SSD Kingston NV2 1TB", 449.00, "NVMe PCIe Gen4 de alta velocidade.", "https://m.media-amazon.com/images/I/71NfMZKkpQL._AC_UL480_FMwebp_QL65_.jpg", SELLERS[2], 24),
-    14: Product(14, "Base Cooler para Notebook", 139.90, "Com LEDs e 5 ventoinhas.", "https://m.media-amazon.com/images/I/51L-D6a7EaL._AC_UL480_FMwebp_QL65_.jpg", SELLERS[2], 28),
-    15: Product(15, "Echo Dot (5ª Geração)", 379.00, "Smart speaker com Alexa.", "https://m.media-amazon.com/images/I/71xoR4A6q-L._AC_UL480_FMwebp_QL65_.jpg", SELLERS[2], 19),
+    # AAAITA
+    11: Product(11, "Jaqueta College Azul", 299.90, "Exclusivo para membros da Gurizada.", "static/images/aaaita1.png", SELLERS[2], 16),
+    12: Product(12, "Casaco Moletom ITA", 159.90, "Para mostrar na sua cidade que você é do ITA.", "static/images/aaaita2.png", SELLERS[2], 10),
+    13: Product(13, "Calça Moletom AAAITA", 129.00, "É uma calça, não tem muito o que falar.", "static/images/aaaita3.png", SELLERS[2], 24),
 }
 
 

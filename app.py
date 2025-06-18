@@ -8,7 +8,6 @@ from datetime import datetime
 # Importa toda a lógica de negócio que já criamos
 from order_processing import OrderBuilder
 from shipping_calculator import ShippingContext, SedexStrategy, PacStrategy, LocalPickupStrategy
-from notification_system import event_manager, EmailNotifier, SMSNotifier
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)  # Chave secreta para sessões

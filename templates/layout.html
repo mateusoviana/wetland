@@ -77,11 +77,25 @@
                     </span>
                     {% endif %}
                 </button>
-
-                <!-- Account button with enhanced styling -->
-                <a href="{{ url_for('account') }}" class="text-3xl text-white hover:text-emerald-200 transition duration-300 transform hover:scale-110" title="Minha Conta">
-                    <i class="fas fa-user-circle"></i>
-                </a>
+                
+                <!-- Links de autenticação -->
+                {% if session.get('user_id') %}
+                    <!-- Usuário logado -->
+                    <a href="{{ url_for('account') }}" class="text-3xl text-emerald-800 hover:text-emerald-600 transition duration-200" title="Minha Conta">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="text-emerald-800 hover:text-emerald-600 transition duration-200" title="Sair">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                {% else %}
+                    <!-- Usuário não logado -->
+                    <a href="{{ url_for('login') }}" class="text-emerald-800 hover:text-emerald-600 transition duration-200" title="Entrar">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </a>
+                    <a href="{{ url_for('register') }}" class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition duration-200">
+                        Criar Conta
+                    </a>
+                {% endif %}
             </div>
         </div>
     </header>

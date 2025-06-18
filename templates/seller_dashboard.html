@@ -3,7 +3,7 @@
 {% block content %}
 <div class="user-profile">
     <div class="profile-header">
-        <h1>Minha Conta</h1>
+        <h1>Dashboard do Vendedor</h1>
         <a href="{{ url_for('logout') }}" class="btn btn-secondary">Sair</a>
     </div>
     
@@ -29,9 +29,7 @@
             </div>
             <div class="detail-item">
                 <strong>Tipo de Conta:</strong> 
-                <span class="badge badge-{{ 'primary' if user.user_type == 'customer' else 'success' }}">
-                    {{ 'Cliente' if user.user_type == 'customer' else 'Vendedor' }}
-                </span>
+                <span class="badge badge-success">Vendedor</span>
             </div>
             <div class="detail-item">
                 <strong>Membro desde:</strong> 
@@ -40,13 +38,32 @@
         </div>
     </div>
 
+    <!-- Estatísticas de Vendas -->
+    <div class="sales-section">
+        <h2>Estatísticas de Vendas</h2>
+        <div class="sales-stats">
+            <div class="stat-card">
+                <span class="stat-number">{{ orders|length }}</span>
+                <span class="stat-label">Total de Pedidos</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">R$ {{ "%.2f"|format(orders|sum(attribute='total_price')) }}</span>
+                <span class="stat-label">Valor Total</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">{{ orders|selectattr('status', 'equalto', 'Delivered')|list|length }}</span>
+                <span class="stat-label">Pedidos Entregues</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Seção de Pedidos -->
     <div class="orders-section">
-        <h2>Meus Pedidos</h2>
+        <h2>Pedidos dos Meus Produtos</h2>
         <div class="orders-list">
             {% if orders %}
                 {% for order in orders %}
-                    <div class="order-card">
+                    <div class="order-card seller-order">
                         <div class="order-header">
                             <h3>Pedido #{{ order.id }}</h3>
                             <div class="order-meta">
@@ -71,12 +88,12 @@
                 {% endfor %}
             {% else %}
                 <div class="empty-state">
-                    <i class="fas fa-shopping-bag"></i>
-                    <p>Você ainda não tem pedidos.</p>
-                    <a href="{{ url_for('index') }}" class="btn btn-primary">Fazer primeira compra</a>
+                    <i class="fas fa-chart-line"></i>
+                    <p>Nenhum pedido encontrado para seus produtos.</p>
+                    <p class="text-muted">Quando clientes comprarem seus produtos, eles aparecerão aqui.</p>
                 </div>
             {% endif %}
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %} 

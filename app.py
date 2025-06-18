@@ -108,51 +108,8 @@ def save_users():
 # Carregar dados ao iniciar
 load_users()
 
-# Criar alguns pedidos de teste se não existirem
-def create_test_orders():
-    """Cria pedidos de teste para demonstração"""
-    if not ORDERS_DB:
-        from order_processing import OrderBuilder
-        from shipping_calculator import ShippingContext, SedexStrategy
-        
-        # Pedido 1 - Produtos da Loja do Duds
-        builder1 = OrderBuilder()
-        builder1.set_id(1)
-        builder1.add_product("Mouse Gamer Sem Fio", 180.75)
-        builder1.add_product("Teclado Mecânico RGB", 350.00)
-        
-        shipping_context = ShippingContext(SedexStrategy())
-        shipping_cost = shipping_context.execute_calculation(weight_kg=1.0, distance_km=100)
-        builder1.apply_shipping(shipping_cost)
-        order1 = builder1.build()
-        ORDERS_DB[1] = order1
-        
-        # Pedido 2 - Produtos da TechMais
-        builder2 = OrderBuilder()
-        builder2.set_id(2)
-        builder2.add_product("Livro Design Patterns", 120.50)
-        builder2.add_product("HD Externo Seagate 2TB", 479.00)
-        
-        shipping_cost = shipping_context.execute_calculation(weight_kg=1.0, distance_km=100)
-        builder2.apply_shipping(shipping_cost)
-        order2 = builder2.build()
-        ORDERS_DB[2] = order2
-        
-        # Pedido 3 - Produtos da GamerCenter
-        builder3 = OrderBuilder()
-        builder3.set_id(3)
-        builder3.add_product("Controle Xbox Series", 399.90)
-        builder3.add_product("SSD Kingston NV2 1TB", 449.00)
-        
-        shipping_cost = shipping_context.execute_calculation(weight_kg=1.0, distance_km=100)
-        builder3.apply_shipping(shipping_cost)
-        order3 = builder3.build()
-        ORDERS_DB[3] = order3
-        
-        print("Pedidos de teste criados!")
-
-# Criar pedidos de teste
-create_test_orders()
+# Sistema de pedidos limpo - sem dados de teste
+# Os pedidos serão criados apenas quando o usuário fizer compras reais
 
 # --- FUNÇÕES AUXILIARES ---
 
@@ -189,31 +146,44 @@ def get_orders_by_seller(seller_name):
 
 def get_user_orders(user_id):
     """Retorna pedidos de um usuário específico (para clientes)"""
-    # Por enquanto, retorna todos os pedidos
-    # Em uma implementação real, associaria pedidos a usuários
-    return list(ORDERS_DB.values())
+    user_orders = []
+    for order in ORDERS_DB.values():
+        # Verificar se o pedido pertence ao usuário
+        if hasattr(order, 'user_id') and order.user_id == user_id:
+            user_orders.append(order)
+    return user_orders
 
 # --- ROTAS DE AUTENTICAÇÃO ---
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        first_name = request.form.get('first_name')
-        last_name = request.form.get('last_name')
-        phone = request.form.get('phone')
-        address = request.form.get('address')
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '').strip()
+        first_name = request.form.get('first_name', '').strip()
+        last_name = request.form.get('last_name', '').strip()
+        phone = request.form.get('phone', '').strip()
+        address = request.form.get('address', '').strip()
         user_type = request.form.get('user_type', 'customer')
         
         # Validações básicas
         if not all([email, password, first_name, last_name]):
-            flash('Todos os campos obrigatórios devem ser preenchidos.', 'error')
+            flash('Email, senha, nome e sobrenome são obrigatórios.', 'error')
+            return render_template('register.html')
+        
+        # Validar email básico
+        if '@' not in email or '.' not in email:
+            flash('Por favor, insira um email válido.', 'error')
+            return render_template('register.html')
+        
+        # Validar senha mínima
+        if len(password) < 4:
+            flash('A senha deve ter pelo menos 4 caracteres.', 'error')
             return render_template('register.html')
         
         # Verificar se email já existe
         for user in USERS_DB.values():
-            if user.email == email:
+            if user.email.lower() == email:
                 flash('Este email já está cadastrado.', 'error')
                 return render_template('register.html')
         
@@ -222,13 +192,13 @@ def register():
         new_user = UserProfile(
             id=new_user_id,
             email=email,
-            password=password,  # Em produção, usar hash
+            password=password,  # Para projeto de faculdade, sem hash
             first_name=first_name,
             last_name=last_name,
-            phone=phone or '',
-            address=address or '',
+            phone=phone,
+            address=address,
             user_type=user_type,
-            created_at=datetime.now().strftime('%d/%m/%Y')
+            created_at=datetime.now().strftime('%d/%m/%Y às %H:%M')
         )
         
         USERS_DB[new_user_id] = new_user
@@ -236,7 +206,7 @@ def register():
         
         # Fazer login automático
         session['user_id'] = new_user_id
-        flash('Conta criada com sucesso! Bem-vindo ao Wetland!', 'success')
+        flash(f'Conta criada com sucesso! Bem-vindo(a), {first_name}!', 'success')
         return redirect(url_for('account'))
     
     return render_template('register.html')
@@ -244,19 +214,24 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '').strip()
+        
+        # Validações básicas
+        if not email or not password:
+            flash('Por favor, preencha email e senha.', 'error')
+            return render_template('login.html')
         
         # Buscar usuário pelo email
         user = None
         for u in USERS_DB.values():
-            if u.email == email and u.password == password:
+            if u.email.lower() == email and u.password == password:
                 user = u
                 break
         
         if user:
             session['user_id'] = user.id
-            flash(f'Bem-vindo de volta, {user.first_name}!', 'success')
+            flash(f'Bem-vindo(a) de volta, {user.first_name}!', 'success')
             return redirect(url_for('account'))
         else:
             flash('Email ou senha incorretos.', 'error')
@@ -274,6 +249,12 @@ def logout():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
+        # Verificar se o usuário está logado para fazer compras
+        current_user = get_current_user()
+        if not current_user:
+            flash('Você precisa estar logado para fazer uma compra.', 'error')
+            return redirect(url_for('login'))
+            
         selected_ids = request.form.getlist('product_ids')
         if not selected_ids:
             return redirect(url_for('index'))
@@ -294,6 +275,9 @@ def index():
 
         builder.apply_shipping(shipping_cost)
         new_order = builder.build()
+        
+        # Associar pedido ao usuário logado
+        new_order.user_id = current_user.id
         ORDERS_DB[new_order.id] = new_order
 
         return redirect(url_for('view_order', order_id=new_order.id))
@@ -330,11 +314,19 @@ def index():
 
 
 @app.route('/order/<int:order_id>')
+@require_login
 def view_order(order_id):
     """Mostra os detalhes de um pedido específico."""
     order = ORDERS_DB.get(order_id)
     if not order:
         abort(404)  # Erro se o pedido não for encontrado
+    
+    current_user = get_current_user()
+    
+    # Verificar se o pedido pertence ao usuário logado
+    if hasattr(order, 'user_id') and order.user_id != current_user.id:
+        flash('Você não tem permissão para ver este pedido.', 'error')
+        return redirect(url_for('account'))
     
     # Calcular custos de frete para diferentes métodos
     total_weight = len(order.products) * 0.5  # Estimativa de 0.5kg por produto
@@ -430,11 +422,13 @@ def product_page(product_id):
                          cart_total=cart_total)
 
 @app.route('/comprar/<int:product_id>', methods=['POST'])
+@require_login
 def comprar(product_id):
     product = PRODUCTS_DB.get(product_id)
     if not product:
         abort(404)
 
+    current_user = get_current_user()
     builder = OrderBuilder()
     new_order_id = len(ORDERS_DB) + 1
     builder.set_id(new_order_id)
@@ -448,6 +442,9 @@ def comprar(product_id):
 
     builder.apply_shipping(shipping_cost)
     new_order = builder.build()
+    
+    # Associar pedido ao usuário logado
+    new_order.user_id = current_user.id
     ORDERS_DB[new_order.id] = new_order
 
     return redirect(url_for('view_order', order_id=new_order.id))
@@ -606,8 +603,11 @@ def clear_cart_route():
     return redirect(request.referrer or url_for('index'))
 
 @app.route('/carrinho/finalizar', methods=['POST'])
+@require_login
 def checkout():
     """Finaliza a compra com os itens do carrinho ou compra direta."""
+    
+    current_user = get_current_user()
     
     # Verifica se é uma compra direta
     direct_buy_id = request.form.get('direct_buy')
@@ -633,6 +633,7 @@ def checkout():
         
         # Criar pedido
         new_order = builder.build()
+        new_order.user_id = current_user.id  # Associar ao usuário
         ORDERS_DB[new_order.id] = new_order
         
         return redirect(url_for('view_order', order_id=new_order.id))
@@ -641,6 +642,7 @@ def checkout():
     cart_items, cart_total = get_cart_items()
     
     if not cart_items:
+        flash('Seu carrinho está vazio.', 'error')
         return redirect(url_for('index'))
     
     # Criar pedido com os itens do carrinho
@@ -665,6 +667,7 @@ def checkout():
     
     # Criar pedido
     new_order = builder.build()
+    new_order.user_id = current_user.id  # Associar ao usuário
     ORDERS_DB[new_order.id] = new_order
     
     # Limpar carrinho após finalizar compra

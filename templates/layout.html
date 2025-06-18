@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -32,12 +33,35 @@
             opacity: 0;
             pointer-events: none;
         }
+
+        /* Proper background pattern implementation */
+        .bg-pattern {
+            position: relative;
+        }
+        .bg-pattern::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj48cmVjdCB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIGZpbGw9IiNmOGY5ZmEiLz48cGF0aCBkPSJNMCwwIEw2MCw2MCBNNjAsMCBMMCw2MCIgc3Ryb2tlPSIjZTdlOGVhIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4=');
+            opacity: 0.05;
+            pointer-events: none;
+            border-radius: inherit;
+            z-index: 0;
+        }
+        .bg-pattern > * {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 </head>
 <body class="bg-emerald-50 text-gray-800">
-    <header class="hero-gradient shadow-lg border-b border-emerald-300">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="{{ url_for('index') }}" class="flex items-center gap-3">
+    <!-- Header with water-wave effect -->
+    <header class="hero-gradient shadow-lg border-b border-emerald-300 water-wave">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center relative z-10">
+            <a href="{{ url_for('index') }}" class="flex items-center gap-3 floating">
                 <img src="{{ url_for('static', filename='images/logo2.png') }}" alt="Logo Wetland" class="h-12 w-auto">
                 <span class="text-3xl font-semibold text-white uppercase tracking-widest">Wetland</span>
             </a>
@@ -64,32 +88,34 @@
 
     {% if request.endpoint != 'index' %}
     <div class="max-w-7xl mx-auto px-1 py-2 text-left">
-        <button onclick="window.history.back()" class="w-12 h-12 hero-gradient text-white rounded-full flex items-center justify-center transition duration-300 hover:shadow-lg transform hover:scale-105">
+        <button onclick="window.history.back()" class="w-12 h-12 hero-gradient text-white rounded-full flex items-center justify-center transition duration-300 hover:shadow-lg transform hover:scale-105 floating">
             <i class="fas fa-arrow-left"></i>
         </button>
     </div>
     {% endif %}
 
     <div class="relative">
-        <main class="{% if request.endpoint == 'index' %}max-w-7xl{% else %}max-w-6xl{% endif %} mx-auto p-6 relative z-10">
+        <!-- Main content area with subtle background pattern -->
+        <main class="{% if request.endpoint == 'index' %}max-w-7xl{% else %}max-w-6xl{% endif %} mx-auto p-6 bg-pattern rounded-lg">
             {% block content %}{% endblock %}
         </main>
 
         <div id="cartOverlay" class="cart-overlay hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
-        
 
-        <aside id="cartSidebar" class="cart-sidebar closed fixed top-0 w-96 h-full bg-white shadow-2xl z-50 border-l border-emerald-100">
+        <!-- Cart sidebar with subtle background pattern -->
+        <aside id="cartSidebar" class="cart-sidebar closed fixed top-0 w-96 h-full bg-white shadow-2xl z-50 border-l border-emerald-100 bg-pattern">
             <div class="p-6 h-full flex flex-col">
-                <div class="flex items-center justify-between border-b border-emerald-100 pb-4 mb-4 hero-gradient text-white p-4 rounded-lg -m-6 mb-4">
-                    <h3 class="text-xl font-semibold flex items-center gap-2">
+                <!-- Cart header with wave effect -->
+                <div class="flex items-center justify-between border-b border-emerald-100 pb-4 mb-4 hero-gradient text-white p-4 rounded-lg -m-6 mb-4 water-wave">
+                    <h3 class="text-xl font-semibold flex items-center gap-2 relative z-10">
                         <i class="fas fa-shopping-cart"></i>
                         Meu Carrinho
                     </h3>
-                    <button id="closeCart" class="text-white hover:text-emerald-200 text-xl transition duration-200">
+                    <button id="closeCart" class="text-white hover:text-emerald-200 text-xl transition duration-200 relative z-10">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                
+
                 <!-- Cart content -->
                 <div class="flex-1 overflow-hidden flex flex-col">
                     {% if cart_items and cart_items|length > 0 %}
@@ -118,17 +144,19 @@
                             </div>
                             {% endfor %}
                         </div>
-                        
-                        <!-- Enhanced summary and actions -->
+
+                        <!-- Enhanced summary and actions with water wave -->
                         <div class="border-t border-emerald-100 pt-4 space-y-4">
-                            <div class="text-center hero-gradient text-white p-4 rounded-lg">
-                                <div class="text-2xl font-bold">Total: R$ {{ "%.2f"|format(cart_total) if cart_total else "0.00" }}</div>
+                            <div class="text-center hero-gradient text-white p-4 rounded-lg water-wave">
+                                <div class="text-2xl font-bold relative z-10">Total: R$ {{ "%.2f"|format(cart_total) if cart_total else "0.00" }}</div>
                             </div>
                             <div class="space-y-3">
                                 <form action="{{ url_for('checkout') }}" method="post">
-                                    <button type="submit" class="w-full hero-gradient text-white py-3 px-4 rounded-lg hover:shadow-lg transition duration-300 font-medium text-lg transform hover:scale-105">
-                                        <i class="fas fa-credit-card mr-2"></i>
-                                        Finalizar Compra
+                                    <button type="submit" class="w-full hero-gradient text-white py-3 px-4 rounded-lg hover:shadow-lg transition duration-300 font-medium text-lg transform hover:scale-105 water-wave">
+                                        <span class="relative z-10 flex items-center justify-center">
+                                            <i class="fas fa-credit-card mr-2"></i>
+                                            Finalizar Compra
+                                        </span>
                                     </button>
                                 </form>
                                 <form action="{{ url_for('clear_cart_route') }}" method="post">
@@ -155,9 +183,9 @@
         </aside>
     </div>
 
-    <!-- Enhanced footer -->
-    <footer class="text-center text-sm text-emerald-900 py-6 border-t border-emerald-200 max-w-7xl mx-auto hero-gradient text-white rounded-t-lg mt-8">
-        <div class="floating">
+    <!-- Enhanced footer with water wave effect -->
+    <footer class="text-center text-sm py-8 border-t border-emerald-200 max-w-7xl mx-auto hero-gradient text-white rounded-t-lg mt-8 water-wave">
+        <div class="floating relative z-10">
             A loja mais completa do H8!
         </div>
     </footer>

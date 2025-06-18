@@ -11,7 +11,7 @@
     "created_at": "17/06/2025"
   },
   "2": {
-    "id": 2,
+    "id": 2, 
     "email": "fornecedor01@gmail.com",
     "password": "6913",
     "first_name": "Pablo",

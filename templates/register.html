@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Criar Conta</h1>
+            <p class="auth-subtitle">Junte-se ao Wetland</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'error' if category == 'error' else category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="auth-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="first_name">Nome</label>
+                    <div class="input-group">
+                        <input type="text" id="first_name" name="first_name" required>
+                        <i class="fas fa-user input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name">Sobrenome</label>
+                    <div class="input-group">
+                        <input type="text" id="last_name" name="last_name" required>
+                        <i class="fas fa-user input-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <div class="input-group">
+                    <input type="email" id="email" name="email" required>
+                    <i class="fas fa-envelope input-icon"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <div class="input-group">
+                    <input type="password" id="password" name="password" required>
+                    <i class="fas fa-lock input-icon"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Telefone</label>
+                <div class="input-group">
+                    <input type="tel" id="phone" name="phone">
+                    <i class="fas fa-phone input-icon"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Endereço</label>
+                <div class="input-group">
+                    <textarea id="address" name="address" rows="3"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="user_type">Tipo de Conta</label>
+                <div class="input-group">
+                    <select id="user_type" name="user_type">
+                        <option value="customer">Cliente</option>
+                        <option value="seller">Vendedor</option>
+                    </select>
+                    <i class="fas fa-users input-icon"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-block">Criar Conta</button>
+        </form>
+
+        <div class="auth-links">
+            <p>Já tem uma conta?</p>
+            <a href="{{ url_for('login') }}">Entrar</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

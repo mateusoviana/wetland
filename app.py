@@ -1,5 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, abort, session, jsonify
-from dataclasses import dataclass
+from flask import Flask, render_template, request, redirect, url_for, abort, session, jsonify, flash
+from dataclasses import dataclass, asdict
+import secrets
+import json
+import os
+from datetime import datetime
 
 # Importa toda a lógica de negócio que já criamos
 from order_processing import OrderBuilder
@@ -7,8 +11,7 @@ from shipping_calculator import ShippingContext, SedexStrategy, PacStrategy, Loc
 from notification_system import event_manager, EmailNotifier, SMSNotifier
 
 app = Flask(__name__)
-app.secret_key = 'wetland_ecommerce_secret_key_2024'  # Em produção, use uma chave mais segura
-
+app.secret_key = secrets.token_hex(16)  # Chave secreta para sessões
 
 # --- CONFIGURAÇÃO INICIAL E DADOS MOCK (SIMULADOS) ---
 
@@ -22,6 +25,19 @@ class Product:
     image_url: str
     seller: str  # Novo campo
     stock: int = 10  # Adicionando controle de estoque
+
+# Classe para representar usuários com dados completos
+@dataclass
+class UserProfile:
+    id: int
+    email: str
+    password: str  # Em produção, seria hash da senha
+    first_name: str
+    last_name: str
+    phone: str
+    address: str
+    user_type: str  # 'customer' ou 'seller'
+    created_at: str
 
 # Lista de vendedores fictícios
 SELLERS = ["Loja do Duds", "TechMais", "GamerCenter"]
@@ -51,12 +67,207 @@ PRODUCTS_DB = {
     15: Product(15, "Echo Dot (5ª Geração)", 379.00, "Smart speaker com Alexa.", "https://m.media-amazon.com/images/I/71xoR4A6q-L._AC_UL480_FMwebp_QL65_.jpg", SELLERS[2], 19),
 }
 
+# Arquivos para persistência de dados
+USERS_FILE = 'users.json'
+ORDERS_FILE = 'orders.json'
 
-
+# Banco de dados de usuários e pedidos
+USERS_DB = {}
 ORDERS_DB = {}  # Usaremos para armazenar os pedidos criados
 
 # Sistema de notificação (Observer) configurado automaticamente no notification_system.py
 
+# --- FUNÇÕES DE PERSISTÊNCIA ---
+
+def load_users():
+    """Carrega usuários do arquivo JSON"""
+    global USERS_DB
+    if os.path.exists(USERS_FILE):
+        try:
+            with open(USERS_FILE, 'r', encoding='utf-8') as f:
+                users_data = json.load(f)
+                USERS_DB = {}
+                for user_id, user_data in users_data.items():
+                    USERS_DB[int(user_id)] = UserProfile(**user_data)
+        except Exception as e:
+            print(f"Erro ao carregar usuários: {e}")
+            USERS_DB = {}
+
+def save_users():
+    """Salva usuários no arquivo JSON"""
+    try:
+        users_data = {}
+        for user_id, user in USERS_DB.items():
+            users_data[str(user_id)] = asdict(user)
+        
+        with open(USERS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(users_data, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"Erro ao salvar usuários: {e}")
+
+# Carregar dados ao iniciar
+load_users()
+
+# Criar alguns pedidos de teste se não existirem
+def create_test_orders():
+    """Cria pedidos de teste para demonstração"""
+    if not ORDERS_DB:
+        from order_processing import OrderBuilder
+        from shipping_calculator import ShippingContext, SedexStrategy
+        
+        # Pedido 1 - Produtos da Loja do Duds
+        builder1 = OrderBuilder()
+        builder1.set_id(1)
+        builder1.add_product("Mouse Gamer Sem Fio", 180.75)
+        builder1.add_product("Teclado Mecânico RGB", 350.00)
+        
+        shipping_context = ShippingContext(SedexStrategy())
+        shipping_cost = shipping_context.execute_calculation(weight_kg=1.0, distance_km=100)
+        builder1.apply_shipping(shipping_cost)
+        order1 = builder1.build()
+        ORDERS_DB[1] = order1
+        
+        # Pedido 2 - Produtos da TechMais
+        builder2 = OrderBuilder()
+        builder2.set_id(2)
+        builder2.add_product("Livro Design Patterns", 120.50)
+        builder2.add_product("HD Externo Seagate 2TB", 479.00)
+        
+        shipping_cost = shipping_context.execute_calculation(weight_kg=1.0, distance_km=100)
+        builder2.apply_shipping(shipping_cost)
+        order2 = builder2.build()
+        ORDERS_DB[2] = order2
+        
+        # Pedido 3 - Produtos da GamerCenter
+        builder3 = OrderBuilder()
+        builder3.set_id(3)
+        builder3.add_product("Controle Xbox Series", 399.90)
+        builder3.add_product("SSD Kingston NV2 1TB", 449.00)
+        
+        shipping_cost = shipping_context.execute_calculation(weight_kg=1.0, distance_km=100)
+        builder3.apply_shipping(shipping_cost)
+        order3 = builder3.build()
+        ORDERS_DB[3] = order3
+        
+        print("Pedidos de teste criados!")
+
+# Criar pedidos de teste
+create_test_orders()
+
+# --- FUNÇÕES AUXILIARES ---
+
+def get_current_user():
+    """Retorna o usuário logado ou None"""
+    user_id = session.get('user_id')
+    if user_id:
+        return USERS_DB.get(user_id)
+    return None
+
+def require_login(f):
+    """Decorator para proteger rotas que precisam de login"""
+    def decorated_function(*args, **kwargs):
+        if not get_current_user():
+            flash('Você precisa estar logado para acessar esta página.', 'error')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    decorated_function.__name__ = f.__name__
+    return decorated_function
+
+def get_orders_by_seller(seller_name):
+    """Retorna pedidos que contêm produtos de um vendedor específico"""
+    seller_orders = []
+    for order in ORDERS_DB.values():
+        for product_name in order.products:
+            # Verificar se o produto pertence ao vendedor
+            for product in PRODUCTS_DB.values():
+                if product.name == product_name and product.seller == seller_name:
+                    # Evitar duplicatas
+                    if order not in seller_orders:
+                        seller_orders.append(order)
+                    break
+    return seller_orders
+
+def get_user_orders(user_id):
+    """Retorna pedidos de um usuário específico (para clientes)"""
+    # Por enquanto, retorna todos os pedidos
+    # Em uma implementação real, associaria pedidos a usuários
+    return list(ORDERS_DB.values())
+
+# --- ROTAS DE AUTENTICAÇÃO ---
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        phone = request.form.get('phone')
+        address = request.form.get('address')
+        user_type = request.form.get('user_type', 'customer')
+        
+        # Validações básicas
+        if not all([email, password, first_name, last_name]):
+            flash('Todos os campos obrigatórios devem ser preenchidos.', 'error')
+            return render_template('register.html')
+        
+        # Verificar se email já existe
+        for user in USERS_DB.values():
+            if user.email == email:
+                flash('Este email já está cadastrado.', 'error')
+                return render_template('register.html')
+        
+        # Criar novo usuário
+        new_user_id = max(USERS_DB.keys()) + 1 if USERS_DB else 1
+        new_user = UserProfile(
+            id=new_user_id,
+            email=email,
+            password=password,  # Em produção, usar hash
+            first_name=first_name,
+            last_name=last_name,
+            phone=phone or '',
+            address=address or '',
+            user_type=user_type,
+            created_at=datetime.now().strftime('%d/%m/%Y')
+        )
+        
+        USERS_DB[new_user_id] = new_user
+        save_users()  # Salvar no arquivo
+        
+        # Fazer login automático
+        session['user_id'] = new_user_id
+        flash('Conta criada com sucesso! Bem-vindo ao Wetland!', 'success')
+        return redirect(url_for('account'))
+    
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        # Buscar usuário pelo email
+        user = None
+        for u in USERS_DB.values():
+            if u.email == email and u.password == password:
+                user = u
+                break
+        
+        if user:
+            session['user_id'] = user.id
+            flash(f'Bem-vindo de volta, {user.first_name}!', 'success')
+            return redirect(url_for('account'))
+        else:
+            flash('Email ou senha incorretos.', 'error')
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    flash('Você foi desconectado.', 'info')
+    return redirect(url_for('index'))
 
 # --- ROTAS DA APLICAÇÃO WEB ---
 
@@ -192,11 +403,19 @@ def next_status(order_id):
     return redirect(url_for('view_order', order_id=order_id))
 
 @app.route('/account')
+@require_login
 def account():
-    # Get all orders stored in the ORDERS_DB
-    # Assuming you have a global ORDERS_DB dictionary storing the orders
-    orders = list(ORDERS_DB.values())
-    return render_template('account.html', orders=orders)
+    current_user = get_current_user()
+    
+    if current_user.user_type == 'seller':
+        # Para vendedores, mostrar monitoramento de vendas
+        seller_name = f"{current_user.first_name} {current_user.last_name}"
+        seller_orders = get_orders_by_seller(seller_name)
+        return render_template('seller_dashboard.html', user=current_user, orders=seller_orders)
+    else:
+        # Para clientes, mostrar pedidos do usuário
+        user_orders = get_user_orders(current_user.id)
+        return render_template('account.html', user=current_user, orders=user_orders)
 
 @app.route('/produto/<int:product_id>')
 def product_page(product_id):

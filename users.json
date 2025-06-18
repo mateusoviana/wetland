@@ -1,0 +1,24 @@
+{
+  "1": {
+    "id": 1,
+    "email": "pablocria@gmail.com",
+    "password": "6913",
+    "first_name": "Pablo",
+    "last_name": "Cria",
+    "phone": "",
+    "address": "",
+    "user_type": "customer",
+    "created_at": "17/06/2025"
+  },
+  "2": {
+    "id": 2,
+    "email": "fornecedor01@gmail.com",
+    "password": "6913",
+    "first_name": "Pablo",
+    "last_name": "Santos",
+    "phone": "40028922",
+    "address": "Praça Marechal Eduardo Gomes, Vila das Acacias,50",
+    "user_type": "seller",
+    "created_at": "17/06/2025"
+  }
+}

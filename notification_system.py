@@ -59,6 +59,7 @@ class EmailNotifier(Observer):
         except Exception as e:
             print(f"❌ Erro no EmailNotifier: {e}")
 
+
 # Instância global do gerenciador de eventos para ser usado na aplicação
 event_manager = Subject()
 
